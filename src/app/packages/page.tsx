@@ -1,0 +1,93 @@
+import type { Metadata } from "next";
+import { PackageCard } from "@/components/sections/package-card";
+import { ContactCTASection } from "@/components/sections/contact-cta-section";
+import { FEATURED_PACKAGES } from "@/lib/data";
+import { cn } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: "Tour Packages",
+  description: "Browse 100+ handcrafted tour packages — domestic, international, honeymoon, adventure, and pilgrimage tours.",
+};
+
+const PACKAGE_TYPES = [
+  { key: "all", label: "All Packages" },
+  { key: "domestic", label: "Domestic" },
+  { key: "international", label: "International" },
+  { key: "honeymoon", label: "Honeymoon" },
+  { key: "adventure", label: "Adventure" },
+  { key: "pilgrimage", label: "Pilgrimage" },
+];
+
+export default function PackagesPage({ searchParams }: { searchParams: { type?: string; destination?: string } }) {
+  const type = searchParams.type || "all";
+  const destination = searchParams.destination;
+
+  const filtered = FEATURED_PACKAGES.filter((p) => {
+    const matchType = type === "all" || p.type === type;
+    const matchDest = !destination || p.destination.toLowerCase().includes(destination.toLowerCase());
+    return matchType && matchDest;
+  });
+
+  return (
+    <>
+      {/* Hero */}
+      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-brand-900 via-brand-800 to-brand-700">
+        <div className="absolute inset-0 opacity-20">
+          <img src="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=80" alt="" className="w-full h-full object-cover" />
+        </div>
+        <div className="relative container mx-auto px-4 text-center text-white">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4">
+            Our <span className="text-gold-400">Tour Packages</span>
+          </h1>
+          <p className="text-xl text-white/80 max-w-2xl mx-auto">
+            Handcrafted itineraries for every type of traveler — from budget to luxury
+          </p>
+        </div>
+      </section>
+
+      {/* Filter + Grid */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          {/* Filters */}
+          <div className="flex items-center gap-2 flex-wrap mb-10">
+            {PACKAGE_TYPES.map((t) => (
+              <a
+                key={t.key}
+                href={`/packages${t.key === "all" ? "" : `?type=${t.key}`}`}
+                className={cn(
+                  "px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
+                  type === t.key
+                    ? "bg-brand-500 text-white shadow-md"
+                    : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
+                )}
+              >
+                {t.label}
+              </a>
+            ))}
+          </div>
+
+          {destination && (
+            <div className="mb-6 flex items-center gap-3">
+              <span className="text-gray-600">Showing packages for: <strong>{destination}</strong></span>
+              <a href="/packages" className="text-sm text-brand-600 hover:underline">Clear filter</a>
+            </div>
+          )}
+
+          {filtered.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-gray-400 text-lg">No packages found. <a href="/packages" className="text-brand-600 hover:underline">View all packages</a></p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filtered.map((pkg, i) => (
+                <PackageCard key={pkg.id} {...pkg} index={i} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <ContactCTASection />
+    </>
+  );
+}
