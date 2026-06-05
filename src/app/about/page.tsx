@@ -41,7 +41,7 @@ function AboutStory() {
               </h2>
               <div className="space-y-4 text-gray-600 leading-relaxed">
                 <p>
-                  Founded in 2005 in New Delhi, VoyageIndia began with a simple mission: to make extraordinary travel experiences accessible to every Indian family. What started as a small team of passionate travel enthusiasts has grown into one of India's most trusted travel companies.
+                  Founded in 2005 in Jetpur, Travel Holiday began with a simple mission: to make extraordinary travel experiences accessible to every Indian family. What started as a small team of passionate travel enthusiasts has grown into one of India's most trusted travel companies.
                 </p>
                 <p>
                   Over 18 years, we've sent more than 50,000 travelers on journeys that changed their lives — from honeymooners discovering Bali's hidden temples to families exploring the royal forts of Rajasthan, from adventure seekers trekking Himalayan trails to pilgrims completing the sacred Char Dham Yatra.
