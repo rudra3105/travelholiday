@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Phone, Mail, MapPin, Clock, MessageSquare } from "lucide-react";
 import { ContactForm } from "@/components/sections/contact-form";
+import { PaymentButton } from "@/components/sections/payment-button";
 import { SITE_CONFIG } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -83,6 +84,12 @@ export default function ContactPage() {
                 <MessageSquare className="h-5 w-5" />
                 <span className="font-semibold">Chat on WhatsApp</span>
               </a>
+
+              {/* Payment Submission CTA */}
+              <div className="pt-2">
+                <p className="text-xs text-gray-500 font-medium mb-3 uppercase tracking-wider px-1">Already booked?</p>
+                <PaymentButton />
+              </div>
             </div>
 
             {/* Contact form */}

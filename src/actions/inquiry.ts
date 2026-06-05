@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { generalInquirySchema, contactSchema } from "@/lib/validations";
+import { generalInquirySchema, contactSchema, paymentSchema } from "@/lib/validations";
 import { SITE_CONFIG } from "@/lib/constants";
 
 const ADMIN_EMAIL = SITE_CONFIG.email;
@@ -147,6 +147,84 @@ function customerEmailHtml(name: string, destination?: string) {
   </table>
 </body>
 </html>`;
+}
+
+// ── Payment notification email template ──────────────────────
+function paymentEmailHtml(data: z.infer<typeof paymentSchema>) {
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:Arial,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:32px 0">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
+        <tr><td style="background:linear-gradient(135deg,#10b981,#059669);padding:28px 32px">
+          <h1 style="margin:0;color:#fff;font-size:22px;font-weight:700">💰 New Payment Details</h1>
+          <p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:14px">${SITE_CONFIG.name} — ${new Date().toLocaleString("en-IN")}</p>
+        </td></tr>
+        <tr><td style="padding:32px">
+          <h3 style="margin:0 0 16px;color:#111827;border-bottom:1px solid #f3f4f6;padding-bottom:8px">Customer Information</h3>
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">
+            <tr><td style="padding:6px 0;color:#6b7280;font-size:14px;width:140px">Name</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:600">${data.name}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b7280;font-size:14px">Email</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:600">${data.email}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b7280;font-size:14px">Phone</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:600">${data.phone}</td></tr>
+          </table>
+
+          <h3 style="margin:0 0 16px;color:#111827;border-bottom:1px solid #f3f4f6;padding-bottom:8px">Transaction Details</h3>
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">
+            <tr><td style="padding:6px 0;color:#6b7280;font-size:14px;width:140px">Amount</td><td style="padding:6px 0;color:#10b981;font-size:18px;font-weight:700">₹${data.amount}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b7280;font-size:14px">Method</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:600">${data.payment_method.toUpperCase()}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b7280;font-size:14px">Transaction ID</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:600">${data.transaction_id}</td></tr>
+            ${data.account_number ? `<tr><td style="padding:6px 0;color:#6b7280;font-size:14px">Account No</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:600">${data.account_number}</td></tr>` : ""}
+            ${data.ifsc_code ? `<tr><td style="padding:6px 0;color:#6b7280;font-size:14px">IFSC Code</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:600">${data.ifsc_code}</td></tr>` : ""}
+            ${data.bank_name ? `<tr><td style="padding:6px 0;color:#6b7280;font-size:14px">Bank</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:600">${data.bank_name}</td></tr>` : ""}
+          </table>
+
+          <div style="margin-top:32px;text-align:center">
+            <p style="margin-bottom:12px;font-size:14px;color:#6b7280">Payment Receipt Image:</p>
+            <a href="${data.receipt_url}" target="_blank" style="display:inline-block;background:#111827;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">🖼️ View Receipt</a>
+          </div>
+        </td></tr>
+        <tr><td style="background:#f9fafb;padding:16px 32px;text-align:center;color:#9ca3af;font-size:12px">
+          ${SITE_CONFIG.name} · ${SITE_CONFIG.address}
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+// ── Submit Payment Details ────────────────────────────────────
+export async function submitPaymentDetails(formData: z.infer<typeof paymentSchema>) {
+  try {
+    const validated = paymentSchema.parse(formData);
+
+    // Save to DB (optional, can reuse saveInquiryLocally with a different type)
+    await saveInquiryLocally({
+      type: "payment",
+      ...validated,
+      message: `Payment of ₹${validated.amount} via ${validated.payment_method}. Transaction ID: ${validated.transaction_id}. Notes: ${validated.notes || "None"}`,
+      status: "new",
+    });
+
+    // Email to admin
+    await sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `💰 Payment Received: ₹${validated.amount} from ${validated.name}`,
+      html: paymentEmailHtml(validated),
+      replyTo: validated.email,
+    });
+
+    return { success: true, message: "Payment details submitted successfully! We will verify and update you." };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { success: false, message: error.issues[0]?.message || "Validation failed." };
+    }
+    console.error("Payment submission error:", error);
+    return { success: false, message: "Failed to submit payment details. Please contact us." };
+  }
 }
 
 // ── Also save to simple JSON store (no Supabase needed) ───────
