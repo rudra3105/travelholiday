@@ -33,7 +33,7 @@ export function TestimonialsSection({ testimonials = TESTIMONIALS_DATA }: Props)
           eyebrow="Testimonials"
           title="What Our"
           titleHighlight="Travelers Say"
-          subtitle="Real stories from real travelers who've experienced the VoyageIndia difference"
+          subtitle="Real stories from real travelers who've experienced the Travel Holiday difference"
         />
 
         {/* Desktop grid */}
