@@ -98,29 +98,5 @@ function TeamSection() {
   ];
 
   return (
-    <section className="py-20 bg-gray-50">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <div className="h-px w-8 bg-brand-500" />
-            <span className="text-brand-600 font-semibold text-sm uppercase tracking-widest">Our Team</span>
-            <div className="h-px w-8 bg-brand-500" />
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Meet the Travel Experts</h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {team.map((member) => (
-            <div key={member.name} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <img src={member.image} alt={member.name} className="w-full aspect-square object-cover" />
-              <div className="p-5">
-                <h3 className="font-bold text-gray-900">{member.name}</h3>
-                <div className="text-brand-500 text-sm font-medium mb-2">{member.role}</div>
-                <p className="text-gray-500 text-sm">{member.bio}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+     );
 }
