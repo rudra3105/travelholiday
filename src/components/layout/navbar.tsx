@@ -30,21 +30,17 @@ export function Navbar() {
     setActiveSubmenu(null);
   }, [pathname]);
 
-  // On homepage: transparent until scrolled. On other pages: always solid white.
-  // Nav text: always DARK (gray-800) for visibility — no white text on transparent bg
+  // On homepage: slightly transparent until scrolled. On other pages: always solid white.
+  // Nav text: always DARK (gray-800/gray-900) for visibility as requested
   const isTransparent = isHomePage && !scrolled && mounted;
   const navBg = isTransparent
-    ? "bg-white/10 backdrop-blur-md border-b border-white/10"
+    ? "bg-white/90 backdrop-blur-md border-b border-gray-100"
     : "bg-white/95 backdrop-blur-md shadow-md border-b border-gray-100";
 
-  // Text is ALWAYS dark so it's readable even on hero
-  const textColor = isTransparent ? "text-white drop-shadow-md" : "text-gray-800";
-  const hoverColor = isTransparent
-    ? "hover:text-white hover:bg-white/20"
-    : "hover:text-brand-600 hover:bg-brand-50";
-  const activeColor = isTransparent
-    ? "text-white bg-white/20"
-    : "text-brand-600 bg-brand-50";
+  // Text colors are now consistent regardless of transparency state
+  const textColor = "text-gray-800";
+  const hoverColor = "hover:text-brand-600 hover:bg-brand-50";
+  const activeColor = "text-brand-600 bg-brand-50";
 
   return (
     <>
@@ -81,10 +77,10 @@ export function Navbar() {
                 />
               </div>
               <div>
-                <div className={cn("text-xl font-bold tracking-tight transition-colors", isTransparent ? "text-white drop-shadow-md" : "text-gray-900")}>
+                <div className="text-xl font-bold tracking-tight text-gray-900 transition-colors">
                   {SITE_CONFIG.name}
                 </div>
-                <div className={cn("text-[10px] font-medium tracking-wider uppercase transition-colors", isTransparent ? "text-white/80" : "text-brand-500")}>
+                <div className="text-[10px] font-medium tracking-wider uppercase text-brand-500 transition-colors">
                   {SITE_CONFIG.tagline}
                 </div>
               </div>
@@ -151,7 +147,7 @@ export function Navbar() {
             {/* Mobile hamburger */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className={cn("lg:hidden p-2 rounded-lg transition-colors", isTransparent ? "text-white" : "text-gray-700 hover:bg-gray-100")}
+              className="lg:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
               aria-label="Toggle menu"
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}

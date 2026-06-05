@@ -107,8 +107,15 @@ export function Footer() {
       <div className="border-t border-white/10">
         <div className="container mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-gray-500">
-            © {new Date().getFullYear()} {SITE_CONFIG.name}. All rights reserved. Made with{" "}
-            <Heart className="inline h-3 w-3 text-red-500 mx-0.5" /> in Gujarat, India.
+            © {new Date().getFullYear()} {SITE_CONFIG.name}. All rights reserved. Developed by{" "}
+            <a 
+              href="https://www.webriseglobal.com/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-brand-400 hover:text-brand-300 transition-colors font-medium"
+            >
+              Webrise Global
+            </a>
           </p>
           <div className="flex items-center gap-3">
             {[

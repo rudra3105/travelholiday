@@ -16,7 +16,6 @@ export default function AboutPage() {
       <AboutHero />
       <AboutStory />
       <WhyChooseUsSection />
-      <TeamSection />
       <TestimonialsSection />
       <ContactCTASection />
     </>
@@ -53,7 +52,7 @@ function AboutStory() {
             </div>
             <div className="relative">
               <img
-                src="https://images.unsplash.com/photo-1521727284319-a7a5a3f55291?w=600&q=80"
+                src="/about.png"
                 alt="Travel team"
                 className="rounded-3xl shadow-xl"
               />
@@ -69,34 +68,3 @@ function AboutStory() {
   );
 }
 
-function TeamSection() {
-  const team = [
-    {
-      name: "Vikram Sharma",
-      role: "Founder & CEO",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80",
-      bio: "18 years in travel industry. Personally visited 60+ countries.",
-    },
-    {
-      name: "Priya Mehta",
-      role: "Head of Operations",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b6b38e9f?w=300&q=80",
-      bio: "Expert in crafting seamless international tour experiences.",
-    },
-    {
-      name: "Arjun Nair",
-      role: "Lead Travel Designer",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&q=80",
-      bio: "Specializes in adventure and offbeat destination itineraries.",
-    },
-    {
-      name: "Sneha Patel",
-      role: "Customer Experience",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&q=80",
-      bio: "Dedicated to ensuring every traveler has a 5-star experience.",
-    },
-  ];
-
-  return (
-     );
-}
