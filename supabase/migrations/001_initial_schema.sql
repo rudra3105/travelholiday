@@ -228,7 +228,7 @@ CREATE POLICY "Public insert inquiries" ON inquiries FOR INSERT WITH CHECK (true
 INSERT INTO settings (key, value, type, label, group_name) VALUES
   ('site_name', 'Travel Holiday', 'text', 'Site Name', 'general'),
   ('site_tagline', 'Crafting Extraordinary Journeys', 'text', 'Tagline', 'general'),
-  ('contact_email', 'info.travelholidays@gmail.com', 'text', 'Contact Email', 'contact'),
+  ('contact_email', 'Info.travelholydays@gmail.com', 'text', 'Contact Email', 'contact'),
   ('contact_phone', '+91 8108101218', 'text', 'Phone', 'contact'),
   ('whatsapp_number', '+91 81081 01218', 'text', 'WhatsApp', 'contact'),
   ('address', 'Jetpur, Gujarat, India', 'text', 'Address', 'contact'),
