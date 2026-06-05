@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Run database migrations for VoyageIndia
+ * Run database migrations for Travel Holiday
  * Usage: node scripts/migrate.js
  */
 

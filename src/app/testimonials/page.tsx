@@ -5,7 +5,7 @@ import { TESTIMONIALS_DATA } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Testimonials",
-  description: "Read what our happy travelers say about VoyageIndia. 50,000+ satisfied customers and counting.",
+  description: "Read what our happy travelers say about Travel Holiday. 50,000+ satisfied customers and counting.",
 };
 
 export default function TestimonialsPage() {
@@ -17,7 +17,7 @@ export default function TestimonialsPage() {
             Traveler <span className="text-gold-400">Stories</span>
           </h1>
           <p className="text-xl text-white/80 max-w-xl mx-auto">
-            Real experiences from 50,000+ happy travelers who chose VoyageIndia
+            Real experiences from 50,000+ happy travelers who chose Travel Holiday
           </p>
 
           <div className="flex items-center justify-center gap-8 mt-10">

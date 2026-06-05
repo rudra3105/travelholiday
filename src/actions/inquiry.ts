@@ -4,7 +4,7 @@ import { z } from "zod";
 import { generalInquirySchema, contactSchema } from "@/lib/validations";
 import { SITE_CONFIG } from "@/lib/constants";
 
-const ADMIN_EMAIL = "travelholiday@gmail.com";
+const ADMIN_EMAIL = SITE_CONFIG.email;
 
 // ── Send email via Resend ─────────────────────────────────────
 async function sendEmail({

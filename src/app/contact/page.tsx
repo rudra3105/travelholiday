@@ -5,7 +5,7 @@ import { SITE_CONFIG } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Contact Us",
-  description: "Get in touch with VoyageIndia. Free travel consultation, custom quotes, and 24/7 support.",
+  description: "Get in touch with Travel Holiday. Free travel consultation, custom quotes, and 24/7 support.",
 };
 
 export default function ContactPage() {

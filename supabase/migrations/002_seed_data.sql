@@ -1,5 +1,5 @@
 -- ============================================================
--- SEED DATA for VoyageIndia Travel Agency
+-- SEED DATA for Travel Holiday Travel Agency
 -- Run AFTER 001_initial_schema.sql
 -- ============================================================
 
@@ -249,22 +249,22 @@ FROM packages p WHERE p.slug = 'manali-spiti-valley';
 -- ── TESTIMONIALS ──────────────────────────────────────────────
 INSERT INTO testimonials (name, location, avatar, rating, review, destination, travel_date, verified, featured, sort_order) VALUES
 ('Priya Sharma', 'Mumbai', 'https://images.unsplash.com/photo-1494790108755-2616b6b38e9f?w=150&q=80', 5,
- 'Our Kerala honeymoon was absolutely magical! VoyageIndia took care of every detail — from the houseboat to the Munnar sunrise. Incredibly responsive team.',
+ 'Our Kerala honeymoon was absolutely magical! Travel Holiday took care of every detail — from the houseboat to the Munnar sunrise. Incredibly responsive team.',
  'Kerala', 'December 2023', true, true, 1),
 ('Rajesh Kumar', 'Delhi', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&q=80', 5,
  'The Rajasthan tour package was exceptional. We visited 6 cities in 8 days and the arrangements were seamless. Hotel quality was top-notch!',
  'Rajasthan', 'November 2023', true, true, 2),
 ('Anita Patel', 'Ahmedabad', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&q=80', 5,
- 'Bali with VoyageIndia was a dream come true! Every resort, every activity was perfectly planned. They even arranged a surprise anniversary dinner!',
+ 'Bali with Travel Holiday was a dream come true! Every resort, every activity was perfectly planned. They even arranged a surprise anniversary dinner!',
  'Bali', 'January 2024', true, true, 3),
 ('Suresh Menon', 'Bangalore', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&q=80', 4,
- 'The Manali-Spiti trek was challenging and beautiful. VoyageIndia''s support team was available 24/7. Excellent arrangements for remote locations.',
+ 'The Manali-Spiti trek was challenging and beautiful. Travel Holiday''s support team was available 24/7. Excellent arrangements for remote locations.',
  'Himachal Pradesh', 'August 2023', true, true, 4),
 ('Deepika Nair', 'Kochi', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&q=80', 5,
  'Absolutely loved the Thailand package. Bangkok, Chiang Mai and Phuket — all covered perfectly. Premium accommodations and great food recommendations!',
  'Thailand', 'February 2024', true, true, 5),
 ('Arun Verma', 'Pune', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&q=80', 5,
- 'Third trip booked through VoyageIndia and it keeps getting better! The Andaman package was phenomenal. Havelock Island snorkelling was once in a lifetime.',
+ 'Third trip booked through Travel Holiday and it keeps getting better! The Andaman package was phenomenal. Havelock Island snorkelling was once in a lifetime.',
  'Andaman', 'March 2024', true, true, 6);
 
 -- ── GALLERY ───────────────────────────────────────────────────

@@ -16,7 +16,7 @@ export default function AdminSettingsPage() {
     address: "Jetpur, Gujarat, India",
     phone: "+91 8108101218",
     whatsapp: "+91 7383751218",
-    email: "travelholiday@gmail.com",
+    email: "info.travelholidays@gmail.com",
   });
 
   const [social, setSocial] = useState({

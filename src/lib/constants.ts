@@ -4,7 +4,7 @@ export const SITE_CONFIG = {
   description:
     "Travel Holiday — India's most trusted travel partner. Explore handcrafted tour packages across breathtaking destinations. Premium holidays, fixed departures, and custom itineraries.",
   url: "https://travelholiday.online",
-  email: "travelholiday@gmail.com",
+  email: "info.travelholidays@gmail.com",
   phone: "+91 8108101218",
   whatsapp: "917383751218",
   address: "Jetpur, Gujarat, India",

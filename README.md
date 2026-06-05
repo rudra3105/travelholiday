@@ -1,4 +1,4 @@
-# VoyageIndia — Premium Travel Agency
+# Travel Holiday — Premium Travel Agency
 
 Full-stack Next.js 15 travel agency with Supabase.
 

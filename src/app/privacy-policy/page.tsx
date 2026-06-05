@@ -3,7 +3,7 @@ import { SITE_CONFIG } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "VoyageIndia privacy policy — how we collect, use and protect your personal information.",
+  description: "Travel Holiday privacy policy — how we collect, use and protect your personal information.",
 };
 
 export default function PrivacyPolicyPage() {

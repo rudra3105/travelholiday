@@ -1,4 +1,4 @@
--- VoyageIndia Travel Agency - Complete Database Schema
+-- Travel Holiday Travel Agency - Complete Database Schema
 -- Run this in your Supabase SQL editor
 
 -- Enable UUID extension
@@ -226,16 +226,16 @@ CREATE POLICY "Public insert inquiries" ON inquiries FOR INSERT WITH CHECK (true
 -- SEED DEFAULT SETTINGS
 -- =====================
 INSERT INTO settings (key, value, type, label, group_name) VALUES
-  ('site_name', 'VoyageIndia', 'text', 'Site Name', 'general'),
+  ('site_name', 'Travel Holiday', 'text', 'Site Name', 'general'),
   ('site_tagline', 'Crafting Extraordinary Journeys', 'text', 'Tagline', 'general'),
-  ('contact_email', 'info@voyageindia.com', 'text', 'Contact Email', 'contact'),
-  ('contact_phone', '+91-9876543210', 'text', 'Phone', 'contact'),
-  ('whatsapp_number', '+919876543210', 'text', 'WhatsApp', 'contact'),
-  ('address', '123, Travel House, Connaught Place, New Delhi - 110001', 'text', 'Address', 'contact'),
-  ('facebook_url', 'https://facebook.com/voyageindia', 'text', 'Facebook', 'social'),
-  ('instagram_url', 'https://instagram.com/voyageindia', 'text', 'Instagram', 'social'),
-  ('twitter_url', 'https://twitter.com/voyageindia', 'text', 'Twitter', 'social'),
-  ('youtube_url', 'https://youtube.com/@voyageindia', 'text', 'YouTube', 'social');
+  ('contact_email', 'info.travelholidays@gmail.com', 'text', 'Contact Email', 'contact'),
+  ('contact_phone', '+91 8108101218', 'text', 'Phone', 'contact'),
+  ('whatsapp_number', '+91 7383751218', 'text', 'WhatsApp', 'contact'),
+  ('address', 'Jetpur, Gujarat, India', 'text', 'Address', 'contact'),
+  ('facebook_url', 'https://facebook.com/travelholiday', 'text', 'Facebook', 'social'),
+  ('instagram_url', 'https://instagram.com/travelholiday', 'text', 'Instagram', 'social'),
+  ('twitter_url', 'https://twitter.com/travelholiday', 'text', 'Twitter', 'social'),
+  ('youtube_url', 'https://youtube.com/@travelholiday', 'text', 'YouTube', 'social');
 
 -- =====================
 -- UPDATED_AT TRIGGER

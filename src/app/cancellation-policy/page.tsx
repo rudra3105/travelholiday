@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Cancellation Policy",
-  description: "VoyageIndia cancellation and refund policy for tour packages.",
+  description: "Travel Holiday cancellation and refund policy for tour packages.",
 };
 
 export default function CancellationPolicyPage() {

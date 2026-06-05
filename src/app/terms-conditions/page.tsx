@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Terms & Conditions",
-  description: "VoyageIndia terms and conditions for tour bookings and services.",
+  description: "Travel Holiday terms and conditions for tour bookings and services.",
 };
 
 export default function TermsPage() {
@@ -30,10 +30,10 @@ export default function TermsPage() {
             <p>We reserve the right to modify itineraries due to weather, road conditions, strikes, or other unforeseen circumstances. We will make every effort to provide equivalent alternatives without additional cost.</p>
 
             <h2>5. Responsibility</h2>
-            <p>VoyageIndia acts as an agent for hotels, airlines, and tour operators. We are not responsible for accidents, illness, theft, or losses during your travel. We strongly recommend purchasing comprehensive travel insurance.</p>
+            <p>Travel Holiday acts as an agent for hotels, airlines, and tour operators. We are not responsible for accidents, illness, theft, or losses during your travel. We strongly recommend purchasing comprehensive travel insurance.</p>
 
             <h2>6. Travel Documents</h2>
-            <p>It is the traveler's responsibility to ensure valid travel documents (passport, visa, ID) are in order. VoyageIndia is not responsible for denied boarding or entry due to invalid documents.</p>
+            <p>It is the traveler's responsibility to ensure valid travel documents (passport, visa, ID) are in order. Travel Holiday is not responsible for denied boarding or entry due to invalid documents.</p>
 
             <h2>7. Disputes</h2>
             <p>Any disputes shall be subject to the jurisdiction of courts in New Delhi, India.</p>
