@@ -14,7 +14,7 @@ export function AboutHero() {
           Since 2005
         </div>
         <h1 className="text-4xl md:text-6xl font-bold mb-6">
-          About <span className="text-gold-400">VoyageIndia</span>
+          About <span className="text-gold-400">Travel Holiday</span>
         </h1>
         <p className="text-xl text-white/80 max-w-2xl mx-auto">
           India's most trusted travel partner. 18+ years of crafting extraordinary journeys for 50,000+ happy travelers.
