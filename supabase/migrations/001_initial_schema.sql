@@ -230,7 +230,7 @@ INSERT INTO settings (key, value, type, label, group_name) VALUES
   ('site_tagline', 'Crafting Extraordinary Journeys', 'text', 'Tagline', 'general'),
   ('contact_email', 'info.travelholidays@gmail.com', 'text', 'Contact Email', 'contact'),
   ('contact_phone', '+91 8108101218', 'text', 'Phone', 'contact'),
-  ('whatsapp_number', '+91 7383751218', 'text', 'WhatsApp', 'contact'),
+  ('whatsapp_number', '+91 81081 01218', 'text', 'WhatsApp', 'contact'),
   ('address', 'Jetpur, Gujarat, India', 'text', 'Address', 'contact'),
   ('facebook_url', 'https://facebook.com/travelholiday', 'text', 'Facebook', 'social'),
   ('instagram_url', 'https://instagram.com/travelholiday', 'text', 'Instagram', 'social'),

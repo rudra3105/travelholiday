@@ -6,7 +6,8 @@ export const SITE_CONFIG = {
   url: "https://travelholiday.online",
   email: "info.travelholidays@gmail.com",
   phone: "+91 8108101218",
-  whatsapp: "917383751218",
+  whatsapp: "918108101218",
+  whatsapp_display: "+91 81081 01218",
   address: "Jetpur, Gujarat, India",
   social: {
     facebook: "https://facebook.com/travelholiday",

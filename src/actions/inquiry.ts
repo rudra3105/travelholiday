@@ -137,7 +137,7 @@ function customerEmailHtml(name: string, destination?: string) {
           </div>
           <p style="color:#6b7280;font-size:14px">For urgent queries, reach us directly:</p>
           <p style="margin:8px 0"><a href="tel:${SITE_CONFIG.phone}" style="color:#0284c7;font-weight:600;text-decoration:none">📞 ${SITE_CONFIG.phone}</a></p>
-          <p style="margin:8px 0"><a href="https://wa.me/${SITE_CONFIG.whatsapp}" style="color:#25D366;font-weight:600;text-decoration:none">💬 WhatsApp: +91 7383751218</a></p>
+          <p style="margin:8px 0"><a href="https://wa.me/${SITE_CONFIG.whatsapp}" style="color:#25D366;font-weight:600;text-decoration:none">💬 WhatsApp: ${SITE_CONFIG.whatsapp_display}</a></p>
         </td></tr>
         <tr><td style="background:#f9fafb;padding:16px 32px;text-align:center;color:#9ca3af;font-size:12px">
           ${SITE_CONFIG.name} · ${SITE_CONFIG.address}

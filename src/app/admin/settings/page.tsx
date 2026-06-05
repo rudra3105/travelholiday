@@ -15,7 +15,7 @@ export default function AdminSettingsPage() {
     description: "Travel Holiday — India's most trusted travel partner from Jetpur, Gujarat.",
     address: "Jetpur, Gujarat, India",
     phone: "+91 8108101218",
-    whatsapp: "+91 7383751218",
+    whatsapp: "+91 81081 01218",
     email: "info.travelholidays@gmail.com",
   });
 
