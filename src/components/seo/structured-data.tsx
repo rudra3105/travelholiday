@@ -1,28 +1,33 @@
 import { SITE_CONFIG } from "@/lib/constants";
 
-export function OrganizationSchema() {
+export function OrganizationSchema({ config = SITE_CONFIG }: { config?: any }) {
   const schema = {
     "@context": "https://schema.org",
     "@type": "TravelAgency",
-    name: SITE_CONFIG.name,
-    description: SITE_CONFIG.description,
-    url: SITE_CONFIG.url,
-    telephone: SITE_CONFIG.phone,
-    email: SITE_CONFIG.email,
+    name: config.site_name || config.name,
+    description: config.description || config.meta_description,
+    url: config.url || SITE_CONFIG.url,
+    telephone: config.phone,
+    email: config.email,
     address: {
       "@type": "PostalAddress",
-      streetAddress: "123, Travel House, Connaught Place",
-      addressLocality: "New Delhi",
-      addressRegion: "Delhi",
-      postalCode: "110001",
+      streetAddress: config.address || SITE_CONFIG.address,
+      addressLocality: "Jetpur",
+      addressRegion: "Gujarat",
+      postalCode: "360370",
       addressCountry: "IN",
     },
-    sameAs: Object.values(SITE_CONFIG.social),
-    foundingDate: "2005",
+    sameAs: [
+      config.facebook || SITE_CONFIG.social.facebook,
+      config.instagram || SITE_CONFIG.social.instagram,
+      config.twitter || SITE_CONFIG.social.twitter,
+      config.youtube || SITE_CONFIG.social.youtube,
+    ].filter(Boolean),
+    foundingDate: "2020",
     aggregateRating: {
       "@type": "AggregateRating",
       ratingValue: "4.9",
-      reviewCount: "50000",
+      reviewCount: "1250",
       bestRating: "5",
     },
   };

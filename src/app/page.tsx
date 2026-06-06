@@ -9,11 +9,16 @@ import { GallerySectionDB } from "@/components/sections/gallery-section-db";
 import { FAQSectionDB } from "@/components/sections/faq-section-db";
 import { ContactCTASection } from "@/components/sections/contact-cta-section";
 import { OrganizationSchema } from "@/components/seo/structured-data";
+import { getSiteSettings } from "@/lib/db";
+import { SITE_CONFIG } from "@/lib/constants";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const settings = await getSiteSettings();
+  const config = { ...SITE_CONFIG, ...settings } as any;
+
   return (
     <>
-      <OrganizationSchema />
+      <OrganizationSchema config={config} />
       <HeroSection />
       <SearchSection />
       <DestinationsSectionDB />
@@ -23,7 +28,7 @@ export default function HomePage() {
       <TestimonialsSectionDB />
       <GallerySectionDB />
       <FAQSectionDB />
-      <ContactCTASection />
+      <ContactCTASection config={config} />
     </>
   );
 }

@@ -4,25 +4,34 @@ import { WhyChooseUsSection } from "@/components/sections/why-choose-us-section"
 import { TestimonialsSectionDB } from "@/components/sections/testimonials-section-db";
 import { ContactCTASection } from "@/components/sections/contact-cta-section";
 import { SITE_CONFIG } from "@/lib/constants";
+import { getSiteSettings } from "@/lib/db";
 
-export const metadata: Metadata = {
-  title: "About Us",
-  description: `Learn about ${SITE_CONFIG.name} — India's trusted travel partner since 2005. Meet our team and discover our story.`,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const config = { ...SITE_CONFIG, ...settings } as any;
+  
+  return {
+    title: "About Us",
+    description: `Learn about ${config.site_name || config.name} — India's trusted travel partner. Meet our team and discover our story.`,
+  };
+}
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const settings = await getSiteSettings();
+  const config = { ...SITE_CONFIG, ...settings } as any;
+
   return (
     <>
       <AboutHero />
-      <AboutStory />
+      <AboutStory config={config} />
       <WhyChooseUsSection />
       <TestimonialsSectionDB />
-      <ContactCTASection />
+      <ContactCTASection config={config} />
     </>
   );
 }
 
-function AboutStory() {
+function AboutStory({ config }: { config: any }) {
   return (
     <section className="py-20 bg-white">
       <div className="container mx-auto px-4">
@@ -40,7 +49,7 @@ function AboutStory() {
               </h2>
               <div className="space-y-4 text-gray-600 leading-relaxed">
                 <p>
-                  Founded in 2005 in Jetpur, Travel Holiday began with a simple mission: to make extraordinary travel experiences accessible to every Indian family. What started as a small team of passionate travel enthusiasts has grown into one of India's most trusted travel companies.
+                  Founded in 2005 in Jetpur, {config.site_name || config.name} began with a simple mission: to make extraordinary travel experiences accessible to every Indian family. What started as a small team of passionate travel enthusiasts has grown into one of India's most trusted travel companies.
                 </p>
                 <p>
                   Over 18 years, we've sent more than 50,000 travelers on journeys that changed their lives — from honeymooners discovering Bali's hidden temples to families exploring the royal forts of Rajasthan, from adventure seekers trekking Himalayan trails to pilgrims completing the sacred Char Dham Yatra.

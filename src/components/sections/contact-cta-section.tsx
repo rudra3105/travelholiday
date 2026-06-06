@@ -6,7 +6,7 @@ import { Phone, MessageSquare, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SITE_CONFIG } from "@/lib/constants";
 
-export function ContactCTASection() {
+export function ContactCTASection({ config = SITE_CONFIG }: { config?: any }) {
   return (
     <section className="py-20 lg:py-28 relative overflow-hidden">
       {/* Background */}
@@ -48,9 +48,9 @@ export function ContactCTASection() {
               </Link>
             </Button>
             <Button variant="glass" size="xl" asChild>
-              <a href={`tel:${SITE_CONFIG.phone}`}>
+              <a href={`tel:${config.phone}`}>
                 <Phone className="h-5 w-5" />
-                {SITE_CONFIG.phone}
+                {config.phone}
               </a>
             </Button>
           </div>

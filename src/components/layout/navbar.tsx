@@ -10,7 +10,11 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SITE_CONFIG, NAV_LINKS } from "@/lib/constants";
 
-export function Navbar() {
+interface NavbarProps {
+  config?: any;
+}
+
+export function Navbar({ config = SITE_CONFIG }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
@@ -48,15 +52,15 @@ export function Navbar() {
       <div className="hidden lg:block bg-brand-900 text-white text-xs py-2">
         <div className="container mx-auto px-4 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <a href={`tel:${SITE_CONFIG.phone}`} className="flex items-center gap-1.5 hover:text-gold-300 transition-colors">
-              <Phone className="h-3 w-3" />{SITE_CONFIG.phone}
+            <a href={`tel:${config.phone}`} className="flex items-center gap-1.5 hover:text-gold-300 transition-colors">
+              <Phone className="h-3 w-3" />{config.phone}
             </a>
-            <a href={`mailto:${SITE_CONFIG.email}`} className="flex items-center gap-1.5 hover:text-gold-300 transition-colors">
-              <Mail className="h-3 w-3" />{SITE_CONFIG.email}
+            <a href={`mailto:${config.email}`} className="flex items-center gap-1.5 hover:text-gold-300 transition-colors">
+              <Mail className="h-3 w-3" />{config.email}
             </a>
           </div>
           <div className="flex items-center gap-1 text-white/70">
-            <MapPin className="h-3 w-3" />{SITE_CONFIG.address}
+            <MapPin className="h-3 w-3" />{config.address}
           </div>
         </div>
       </div>
@@ -78,10 +82,10 @@ export function Navbar() {
               </div>
               <div>
                 <div className="text-xl font-bold tracking-tight text-gray-900 transition-colors">
-                  {SITE_CONFIG.name}
+                  {config.site_name || config.name}
                 </div>
                 <div className="text-[10px] font-medium tracking-wider uppercase text-brand-500 transition-colors">
-                  {SITE_CONFIG.tagline}
+                  {config.tagline}
                 </div>
               </div>
             </Link>

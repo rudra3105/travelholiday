@@ -13,9 +13,10 @@ import { SITE_CONFIG } from "@/lib/constants";
 interface Props {
   slug: string;
   defaultPkg: any;
+  config?: any;
 }
 
-export function PackageDetailClient({ slug, defaultPkg }: Props) {
+export function PackageDetailClient({ slug, defaultPkg, config = SITE_CONFIG }: Props) {
   // Use the package data passed from the server (DB)
   const [pkg] = useState<any>(defaultPkg);
   const [activeTab, setActiveTab] = useState<"overview" | "itinerary" | "inclusions" | "gallery">("overview");
@@ -359,7 +360,7 @@ export function PackageDetailClient({ slug, defaultPkg }: Props) {
 
                   {/* CTA buttons */}
                   <a
-                    href={`https://wa.me/${SITE_CONFIG.whatsapp}?text=Hi! I'm interested in the "${pkg.title}" package. Please share details.`}
+                    href={`https://wa.me/${config.whatsapp}?text=Hi! I'm interested in the "${pkg.title}" package. Please share details.`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 w-full py-3.5 bg-[#25D366] hover:bg-[#20b95b] text-white font-bold rounded-xl transition-colors mb-3"
@@ -371,7 +372,7 @@ export function PackageDetailClient({ slug, defaultPkg }: Props) {
                   </a>
 
                   <a
-                    href={`tel:${SITE_CONFIG.phone}`}
+                    href={`tel:${config.phone}`}
                     className="flex items-center justify-center gap-2 w-full py-3.5 border-2 border-brand-500 text-brand-600 font-bold rounded-xl hover:bg-brand-50 transition-colors"
                   >
                     <Phone className="h-4 w-4" />

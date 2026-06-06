@@ -43,14 +43,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased font-sans bg-white text-gray-900">
-        <Navbar />
+        <Navbar config={config} />
         <main>{children}</main>
         <Footer config={config} domestic={domestic} international={international} />
         <FloatingActions />
         <Toaster />
         {/* WhatsApp floating button */}
         <a
-          href={`https://wa.me/${config.whatsapp.replace(/\s+/g, '')}?text=Hi! I'm interested in a travel package.`}
+          href={`https://wa.me/${String(config.whatsapp).replace(/\s+/g, '')}?text=Hi! I'm interested in a travel package.`}
           target="_blank"
           rel="noopener noreferrer"
           className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#25D366] shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110"

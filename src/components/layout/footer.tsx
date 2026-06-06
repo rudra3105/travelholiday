@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Phone, Mail, MapPin, ArrowRight, Heart } from "lucide-react";
+import { Phone, Mail, MapPin, ArrowRight, Heart, MessageSquare } from "lucide-react";
 import { SITE_CONFIG } from "@/lib/constants";
 
 interface FooterProps {
@@ -44,17 +44,30 @@ export function Footer({ config, domestic, international }: FooterProps) {
                 <div className="text-xs text-white/50 uppercase tracking-wider">{config.tagline}</div>
               </div>
             </Link>
-            <p className="text-gray-400 text-sm leading-relaxed mb-6">India's most trusted travel partner. Crafting extraordinary journeys across 100+ destinations worldwide.</p>
+            <p className="text-gray-400 text-sm leading-relaxed mb-6">
+              {config.description || "India's most trusted travel partner. Crafting extraordinary journeys across 100+ destinations worldwide."}
+            </p>
             <div className="space-y-3">
-              <a href={`tel:${config.phone.replace(/\s+/g, '')}`} className="flex items-center gap-3 text-sm text-gray-400 hover:text-white transition-colors">
-                <Phone className="h-4 w-4 text-brand-400 shrink-0" />{config.phone}
-              </a>
-              <a href={`mailto:${config.email}`} className="flex items-center gap-3 text-sm text-gray-400 hover:text-white transition-colors">
-                <Mail className="h-4 w-4 text-brand-400 shrink-0" />{config.email}
-              </a>
-              <div className="flex items-start gap-3 text-sm text-gray-400">
-                <MapPin className="h-4 w-4 text-brand-400 shrink-0 mt-0.5" />{config.address}
-              </div>
+              {config.phone && (
+                <a href={`tel:${String(config.phone).replace(/\s+/g, '')}`} className="flex items-center gap-3 text-sm text-gray-400 hover:text-white transition-colors">
+                  <Phone className="h-4 w-4 text-brand-400 shrink-0" />{config.phone}
+                </a>
+              )}
+              {config.email && (
+                 <a href={`mailto:${config.email}`} className="flex items-center gap-3 text-sm text-gray-400 hover:text-white transition-colors">
+                   <Mail className="h-4 w-4 text-brand-400 shrink-0" />{config.email}
+                 </a>
+               )}
+               {config.whatsapp && (
+                 <a href={`https://wa.me/${String(config.whatsapp).replace(/\s+/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-gray-400 hover:text-white transition-colors">
+                   <MessageSquare className="h-4 w-4 text-brand-400 shrink-0" />{config.whatsapp}
+                 </a>
+               )}
+               {config.address && (
+                <div className="flex items-start gap-3 text-sm text-gray-400">
+                  <MapPin className="h-4 w-4 text-brand-400 shrink-0 mt-0.5" />{config.address}
+                </div>
+              )}
             </div>
           </div>
 
@@ -130,10 +143,10 @@ export function Footer({ config, domestic, international }: FooterProps) {
           </p>
           <div className="flex items-center gap-3">
             {[
-              { href: SITE_CONFIG.social.facebook, label: "FB" },
-              { href: SITE_CONFIG.social.instagram, label: "IG" },
-              { href: SITE_CONFIG.social.twitter, label: "TW" },
-              { href: SITE_CONFIG.social.youtube, label: "YT" },
+              { href: config.facebook || SITE_CONFIG.social.facebook, label: "FB" },
+              { href: config.instagram || SITE_CONFIG.social.instagram, label: "IG" },
+              { href: config.twitter || SITE_CONFIG.social.twitter, label: "TW" },
+              { href: config.youtube || SITE_CONFIG.social.youtube, label: "YT" },
             ].map(({ href, label }) => (
               <a key={label} href={href} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-xl bg-white/10 hover:bg-brand-500 flex items-center justify-center transition-colors text-xs font-bold text-white/70 hover:text-white">
                 {label}
