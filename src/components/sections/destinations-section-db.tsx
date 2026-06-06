@@ -39,8 +39,8 @@ export async function DestinationsSectionDB() {
                   slug={dest.slug}
                   image={dest.cover_image}
                   tagline={dest.short_description}
-                  packages={0} // We can calculate this if needed
-                  starting_from={0}
+                  packages={dest.packages_count}
+                  starting_from={dest.starting_from}
                   index={i} 
                 />
               ))}
@@ -64,8 +64,8 @@ export async function DestinationsSectionDB() {
                   slug={dest.slug}
                   image={dest.cover_image}
                   tagline={dest.short_description}
-                  packages={0}
-                  starting_from={0}
+                  packages={dest.packages_count}
+                  starting_from={dest.starting_from}
                   index={i} 
                 />
               ))}

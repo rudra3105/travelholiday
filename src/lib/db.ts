@@ -8,10 +8,30 @@ function isAvailable() {
 
 export async function getDestinations(region?: string) {
   if (!isAvailable()) return [];
-  let q = supabase.from("destinations").select("*").order("sort_order");
+  // Fetch destinations with package counts and minimum prices
+  let q = supabase.from("destinations").select(`
+    *,
+    packages(count),
+    min_price:packages(price_per_person)
+  `).order("sort_order");
+  
   if (region) q = q.eq("region", region);
   const { data } = await q;
-  return data || [];
+
+  // Process data to calculate count and min_price manually if needed or from nested objects
+  return (data || []).map(dest => {
+    const packages = dest.packages || [];
+    const prices = dest.min_price || [];
+    const minPrice = prices.length > 0 
+      ? Math.min(...prices.map((p: any) => parseFloat(p.price_per_person))) 
+      : 0;
+    
+    return {
+      ...dest,
+      packages_count: Array.isArray(packages) ? packages.length : (dest.packages?.[0]?.count || 0),
+      starting_from: minPrice
+    };
+  });
 }
 
 export async function getDestinationBySlug(slug: string) {
