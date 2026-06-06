@@ -14,8 +14,8 @@ type Dest = {
   id: string;
   name: string;
   slug: string;
-  short_description: string | null;
-  cover_image: string | null;
+  short_description: string;
+  cover_image: string;
   region: "domestic" | "international";
   featured: boolean;
   sort_order: number;

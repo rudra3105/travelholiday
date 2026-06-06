@@ -12,6 +12,11 @@ export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
 
+  const admin = {
+    admin_username: process.env.NEXT_PUBLIC_ADMIN_USER || "admin",
+    admin_password: process.env.NEXT_PUBLIC_ADMIN_PASS || "admin123",
+  };
+
   const [general, setGeneral] = useState({
     site_name: "Travel Holiday",
     tagline: "Crafting Extraordinary Journeys",

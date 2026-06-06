@@ -9,7 +9,7 @@ import { getSiteSettings, getDestinations } from "@/lib/db";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
-  const config = { ...SITE_CONFIG, ...settings };
+  const config = { ...SITE_CONFIG, ...settings } as any;
   
   return {
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://travelholiday.online"),
@@ -38,7 +38,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     getDestinations("international"),
   ]);
   
-  const config = { ...SITE_CONFIG, ...settings };
+  const config = { ...SITE_CONFIG, ...settings } as any;
 
   return (
     <html lang="en" suppressHydrationWarning>

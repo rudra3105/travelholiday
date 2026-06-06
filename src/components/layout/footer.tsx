@@ -4,7 +4,7 @@ import { Phone, Mail, MapPin, ArrowRight, Heart } from "lucide-react";
 import { SITE_CONFIG } from "@/lib/constants";
 
 interface FooterProps {
-  config: typeof SITE_CONFIG;
+  config: any;
   domestic: any[];
   international: any[];
 }

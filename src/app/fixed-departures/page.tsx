@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Calendar, MapPin, Users, Clock, ArrowRight } from "lucide-react";
+import { Calendar, MapPin, Users, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ContactCTASection } from "@/components/sections/contact-cta-section";
 import { getFixedDepartures } from "@/lib/db";
 import { formatCurrency, formatDate, getDurationLabel } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { FixedDeparture } from "@/types";
 
 export const metadata: Metadata = {
   title: "Fixed Departures",
@@ -124,40 +125,6 @@ export default async function FixedDeparturesPage() {
                 );
               })
             )}
-          </div>
-        </div>
-      </section>
-
-      <ContactCTASection />
-    </>
-  );
-}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-2xl font-bold text-brand-600">{formatCurrency(dep.price_per_person)}</div>
-                          <div className="text-xs text-gray-400">per person</div>
-                        </div>
-                        <div className="flex gap-3">
-                          <Button variant="outline" size="sm" asChild>
-                            <Link href={`/fixed-departures/${dep.slug}`}>View Details</Link>
-                          </Button>
-                          {dep.status !== "sold_out" && (
-                            <Button variant="premium" size="sm" asChild>
-                              <Link href={`/contact?package=${dep.package_title}`}>
-                                Book Now
-                              </Link>
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
           </div>
         </div>
       </section>

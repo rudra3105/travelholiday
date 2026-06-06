@@ -125,7 +125,7 @@ export function PackageDetailClient({ slug, defaultPkg }: Props) {
                     <div>
                       <h2 className="text-2xl font-bold text-gray-900 mb-5">Tour Highlights</h2>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {pkg.highlights.map((h, i) => (
+                        {pkg.highlights.map((h: string, i: number) => (
                           <div key={i} className="flex items-start gap-3 p-4 bg-brand-50 rounded-2xl">
                             <div className="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm font-bold shrink-0">
                               {i + 1}
@@ -166,7 +166,7 @@ export function PackageDetailClient({ slug, defaultPkg }: Props) {
                       </button>
                     </div>
                     <div className="space-y-3">
-                      {pkg.itinerary?.slice(0, 3).map((day) => (
+                      {pkg.itinerary?.slice(0, 3).map((day: any) => (
                         <div key={day.day} className="flex gap-4 p-4 bg-gray-50 rounded-xl">
                           <div className="w-9 h-9 rounded-full bg-brand-500 text-white flex items-center justify-center font-bold text-sm shrink-0">{day.day}</div>
                           <div>
@@ -200,7 +200,7 @@ export function PackageDetailClient({ slug, defaultPkg }: Props) {
                     <div className="absolute left-5 top-5 bottom-5 w-0.5 bg-gray-200" />
 
                     <div className="space-y-4">
-                      {pkg.itinerary?.map((day) => (
+                      {pkg.itinerary?.map((day: any) => (
                         <details key={day.day} className="group relative" open={day.day === 1}>
                           <summary className="flex items-center gap-4 cursor-pointer list-none p-4 bg-white rounded-2xl border border-gray-100 hover:border-brand-200 hover:bg-brand-50/30 transition-all shadow-sm">
                             {/* Day circle */}
@@ -236,7 +236,7 @@ export function PackageDetailClient({ slug, defaultPkg }: Props) {
                         What's Included
                       </h2>
                       <ul className="space-y-3">
-                        {pkg.inclusions.map((item, i) => (
+                        {pkg.inclusions.map((item: string, i: number) => (
                           <li key={i} className="flex items-start gap-3 p-3 bg-emerald-50 rounded-xl">
                             <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shrink-0 mt-0.5">
                               <Check className="h-3 w-3 text-white" />
@@ -256,7 +256,7 @@ export function PackageDetailClient({ slug, defaultPkg }: Props) {
                         Not Included
                       </h2>
                       <ul className="space-y-3">
-                        {pkg.exclusions.map((item, i) => (
+                        {pkg.exclusions.map((item: string, i: number) => (
                           <li key={i} className="flex items-start gap-3 p-3 bg-red-50 rounded-xl">
                             <div className="w-5 h-5 rounded-full bg-red-400 flex items-center justify-center shrink-0 mt-0.5">
                               <X className="h-3 w-3 text-white" />
@@ -287,7 +287,7 @@ export function PackageDetailClient({ slug, defaultPkg }: Props) {
                   <h2 className="text-2xl font-bold text-gray-900 mb-5">Photo Gallery</h2>
                   {pkg.gallery_images && pkg.gallery_images.length > 0 ? (
                     <div className="grid grid-cols-2 gap-3">
-                      {pkg.gallery_images.map((img, i) => (
+                      {pkg.gallery_images.map((img: string, i: number) => (
                         <div
                           key={i}
                           className={`rounded-2xl overflow-hidden group cursor-pointer ${

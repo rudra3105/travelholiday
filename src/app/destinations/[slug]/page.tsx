@@ -111,7 +111,7 @@ export default async function DestinationDetailPage({ params }: Props) {
                 <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Plan Your Trip</h3>
                   <p className="text-gray-500 text-sm mb-6">Tell us your travel dreams and we'll handle the rest</p>
-                  <InquiryForm source={`Destination: ${dest.name}`} />
+                  <InquiryForm destination={dest.name} />
                 </div>
               </div>
             </div>

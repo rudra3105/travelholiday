@@ -87,7 +87,7 @@ export default function AdminPackagesPage() {
       }));
 
       setPackages(mappedPkgs);
-      setDestinations(dests.map(d => ({ id: d.id, name: d.name })));
+      setDestinations(dests.map((d: any) => ({ id: d.id, name: d.name })));
     } catch (error) {
       show("Failed to load data", "error");
     } finally {

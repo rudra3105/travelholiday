@@ -38,7 +38,20 @@ export default function AdminDeparturesPage() {
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [editItem, setEditItem] = useState<Departure | null>(null);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    package_id: string;
+    package_title: string;
+    destination: string;
+    cover_image: string;
+    departure_date: string;
+    return_date: string;
+    duration_days: number;
+    price_per_person: number;
+    available_seats: number;
+    total_seats: number;
+    status: "available" | "limited" | "sold_out" | "cancelled";
+    slug: string;
+  }>({
     package_id: "",
     package_title: "",
     destination: "",
@@ -49,7 +62,7 @@ export default function AdminDeparturesPage() {
     price_per_person: 0,
     available_seats: 16,
     total_seats: 20,
-    status: "available" as const,
+    status: "available",
     slug: "",
   });
   const [saving, setSaving] = useState(false);
@@ -175,7 +188,7 @@ export default function AdminDeparturesPage() {
                   </div>
                 </td>
                 <td className="px-5 py-4 text-gray-300 text-sm">{formatDate(dep.departure_date)}</td>
-                <td className="px-5 py-4 text-gray-300 text-sm">{getDurationLabel(dep.duration_days)}</td>
+                <td className="px-5 py-4 text-gray-300 text-sm">{getDurationLabel(dep.duration_days || 0)}</td>
                 <td className="px-5 py-4 text-gray-300 text-sm">{dep.available_seats}/{dep.total_seats}</td>
                 <td className="px-5 py-4 text-white text-sm font-semibold">{formatCurrency(dep.price_per_person)}</td>
                 <td className="px-5 py-4">
