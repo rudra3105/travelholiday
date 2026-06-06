@@ -6,7 +6,7 @@ import { Plus, Edit, Trash2, Eye, Search, ChevronDown, ChevronUp, X, Image as Im
 import { AdminModal } from "@/components/admin/modal";
 import { Field, AdminInput, AdminTextarea, AdminSelect, AdminTagInput, FormRow, SaveButton, CancelButton } from "@/components/admin/form-fields";
 import { AdminToasts, useAdminToast } from "@/components/admin/toast";
-import { getPackages } from "@/lib/db";
+import { getPackages, getDestinations } from "@/lib/db";
 import { savePackageAction, deletePackageAction } from "@/actions/admin";
 import { formatCurrency, getDurationLabel } from "@/lib/utils";
 
@@ -22,7 +22,8 @@ export interface PackageFull {
   id: string;
   title: string;
   slug: string;
-  destination: string;
+  destination_id: string;
+  destination_name?: string;
   duration_days: number;
   price_per_person: number;
   original_price: number;
@@ -42,7 +43,7 @@ export interface PackageFull {
 }
 
 const EMPTY_PKG: Omit<PackageFull, "id"> = {
-  title: "", slug: "", destination: "", duration_days: 5, price_per_person: 0,
+  title: "", slug: "", destination_id: "", duration_days: 5, price_per_person: 0,
   original_price: 0, cover_image: "", short_description: "",
   description: "", type: "domestic", rating: 4.8, reviews_count: 0,
   best_seller: false, featured: false,
@@ -55,6 +56,7 @@ const EMPTY_PKG: Omit<PackageFull, "id"> = {
 
 export default function AdminPackagesPage() {
   const [packages, setPackages] = useState<PackageFull[]>([]);
+  const [destinations, setDestinations] = useState<{id: string, name: string}[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -67,25 +69,50 @@ export default function AdminPackagesPage() {
 
   // Load from DB on mount
   useEffect(() => {
-    loadPackages();
+    loadInitialData();
   }, []);
 
-  async function loadPackages() {
+  async function loadInitialData() {
     setLoading(true);
     try {
-      const data = await getPackages();
-      setPackages(data as any);
+      const [pkgs, dests] = await Promise.all([
+        getPackages(),
+        getDestinations()
+      ]);
+      
+      const mappedPkgs = (pkgs as any[]).map(p => ({
+        ...p,
+        destination_id: p.destination_id || "",
+        destination_name: p.destinations?.name || ""
+      }));
+
+      setPackages(mappedPkgs);
+      setDestinations(dests.map(d => ({ id: d.id, name: d.name })));
     } catch (error) {
-      show("Failed to load packages", "error");
+      show("Failed to load data", "error");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadPackages() {
+    try {
+      const data = await getPackages();
+      const mappedPkgs = (data as any[]).map(p => ({
+        ...p,
+        destination_id: p.destination_id || "",
+        destination_name: p.destinations?.name || ""
+      }));
+      setPackages(mappedPkgs);
+    } catch (error) {
+      show("Failed to reload packages", "error");
     }
   }
 
   const filtered = packages.filter(
     (p) =>
       p.title.toLowerCase().includes(search.toLowerCase()) ||
-      p.destination?.toLowerCase().includes(search.toLowerCase())
+      p.destination_name?.toLowerCase().includes(search.toLowerCase())
   );
 
   function openAdd() {
@@ -245,7 +272,7 @@ export default function AdminPackagesPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-gray-300 text-sm">{pkg.destination}</td>
+                  <td className="px-5 py-4 text-gray-300 text-sm">{pkg.destination_name || "No Destination"}</td>
                   <td className="px-5 py-4 text-gray-300 text-sm">{getDurationLabel(pkg.duration_days)}</td>
                   <td className="px-5 py-4 text-white text-sm font-semibold">{formatCurrency(pkg.price_per_person)}</td>
                   <td className="px-5 py-4">
@@ -326,7 +353,15 @@ export default function AdminPackagesPage() {
 
               <FormRow>
                 <Field label="Destination" required>
-                  <AdminInput value={form.destination} onChange={(e) => set("destination", e.target.value)} placeholder="e.g. Kerala" required />
+                  <AdminSelect
+                    value={form.destination_id}
+                    onChange={(e) => set("destination_id", e.target.value)}
+                    options={[
+                      { value: "", label: "Select Destination" },
+                      ...destinations.map(d => ({ value: d.id, label: d.name }))
+                    ]}
+                    required
+                  />
                 </Field>
                 <Field label="URL Slug" hint="Auto-generated, or enter custom">
                   <AdminInput value={form.slug} onChange={(e) => set("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))} placeholder="kerala-backwaters-munnar" />

@@ -15,6 +15,8 @@ export async function saveDestinationAction(dest: any) {
   const res = await upsertDestination(dest);
   revalidatePath("/admin/destinations");
   revalidatePath("/destinations");
+  if (dest.slug) revalidatePath(`/destinations/${dest.slug}`);
+  revalidatePath("/", "layout"); // Force global revalidation to be safe
   return res;
 }
 
@@ -22,12 +24,15 @@ export async function deleteDestinationAction(id: string) {
   await deleteDestination(id);
   revalidatePath("/admin/destinations");
   revalidatePath("/destinations");
+  revalidatePath("/", "layout");
 }
 
 export async function savePackageAction(pkg: any) {
   const res = await upsertPackage(pkg);
   revalidatePath("/admin/packages");
   revalidatePath("/packages");
+  if (pkg.slug) revalidatePath(`/packages/${pkg.slug}`);
+  revalidatePath("/", "layout");
   return res;
 }
 
@@ -35,6 +40,7 @@ export async function deletePackageAction(id: string) {
   await deletePackage(id);
   revalidatePath("/admin/packages");
   revalidatePath("/packages");
+  revalidatePath("/", "layout");
 }
 
 export async function saveFixedDepartureAction(dep: any) {

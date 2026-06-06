@@ -117,7 +117,32 @@ export async function updateInquiryStatus(id: string, status: string) {
 export async function upsertDestination(dest: Record<string, unknown>) {
   const admin = createAdminClient();
   if (!admin) return dest;
-  const { data } = await admin.from("destinations").upsert(dest as any).select().single();
+
+  const validColumns = [
+    "id", "name", "slug", "country", "region", "description",
+    "short_description", "cover_image", "gallery_images", "highlights",
+    "best_time_to_visit", "climate", "language", "currency", "timezone",
+    "visa_required", "featured", "sort_order", "updated_at"
+  ];
+
+  const destData = Object.fromEntries(
+    Object.entries(dest).filter(([key]) => validColumns.includes(key))
+  );
+
+  if (destData.id) {
+    destData.updated_at = new Date().toISOString();
+  }
+
+  const { data, error } = await admin
+    .from("destinations")
+    .upsert(destData as any)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("UPSERT DESTINATION ERROR:", error);
+    throw error;
+  }
   return data;
 }
 
@@ -130,8 +155,57 @@ export async function deleteDestination(id: string) {
 export async function upsertPackage(pkg: Record<string, unknown>) {
   const admin = createAdminClient();
   if (!admin) return pkg;
-  const { data } = await admin.from("packages").upsert(pkg as any).select().single();
-  return data;
+
+  // Extract itinerary and other relations
+  const { itinerary, destinations, package_images, destination_name, ...rawData } = pkg;
+
+  // List of valid columns in 'packages' table to avoid PostgREST errors
+  const validColumns = [
+    "id", "title", "slug", "destination_id", "type", "duration_days",
+    "price_per_person", "original_price", "max_people", "min_people",
+    "cover_image", "short_description", "description", "inclusions",
+    "exclusions", "highlights", "featured", "best_seller", "rating",
+    "reviews_count", "sort_order", "updated_at"
+  ];
+
+  const packageData = Object.fromEntries(
+    Object.entries(rawData).filter(([key]) => validColumns.includes(key))
+  );
+  
+  if (packageData.id) {
+    packageData.updated_at = new Date().toISOString();
+  }
+
+  // 1. Save main package data
+  const { data: savedPackage, error: pkgError } = await admin
+    .from("packages")
+    .upsert(packageData as any)
+    .select()
+    .single();
+
+  if (pkgError) {
+    console.error("UPSERT PACKAGE ERROR:", pkgError);
+    throw pkgError;
+  }
+
+  // 2. Save itinerary if provided
+  if (itinerary && Array.isArray(itinerary)) {
+    // Delete old itinerary first to keep it clean
+    await admin.from("itineraries").delete().eq("package_id", savedPackage.id);
+
+    // Insert new itinerary
+    const itineraryData = itinerary.map((day: any) => ({
+      ...day,
+      package_id: savedPackage.id,
+    }));
+    
+    if (itineraryData.length > 0) {
+      const { error: itinError } = await admin.from("itineraries").insert(itineraryData as any);
+      if (itinError) console.error("Error saving itinerary:", itinError);
+    }
+  }
+
+  return savedPackage;
 }
 
 export async function deletePackage(id: string) {
