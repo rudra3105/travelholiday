@@ -18,9 +18,10 @@ const PACKAGE_TYPES = [
   { key: "pilgrimage", label: "Pilgrimage" },
 ];
 
-export default function PackagesPage({ searchParams }: { searchParams: { type?: string; destination?: string } }) {
-  const type = searchParams.type || "all";
-  const destination = searchParams.destination;
+type Props = { searchParams: Promise<{ type?: string; destination?: string }> };
+
+export default async function PackagesPage({ searchParams }: Props) {
+  const { type = "all", destination } = await searchParams;
 
   const filtered = FEATURED_PACKAGES.filter((p) => {
     const matchType = type === "all" || p.type === type;
@@ -30,7 +31,6 @@ export default function PackagesPage({ searchParams }: { searchParams: { type?: 
 
   return (
     <>
-      {/* Hero */}
       <section className="relative py-24 overflow-hidden bg-gradient-to-br from-brand-900 via-brand-800 to-brand-700">
         <div className="absolute inset-0 opacity-20">
           <img src="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=80" alt="" className="w-full h-full object-cover" />
@@ -45,10 +45,8 @@ export default function PackagesPage({ searchParams }: { searchParams: { type?: 
         </div>
       </section>
 
-      {/* Filter + Grid */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
-          {/* Filters */}
           <div className="flex items-center gap-2 flex-wrap mb-10">
             {PACKAGE_TYPES.map((t) => (
               <a
@@ -86,7 +84,6 @@ export default function PackagesPage({ searchParams }: { searchParams: { type?: 
           )}
         </div>
       </section>
-
       <ContactCTASection />
     </>
   );

@@ -11,12 +11,15 @@ import { formatCurrency } from "@/lib/utils";
 
 const ALL_DESTINATIONS = [...DESTINATIONS_DOMESTIC, ...DESTINATIONS_INTERNATIONAL];
 
+type Props = { params: Promise<{ slug: string }> };
+
 export async function generateStaticParams() {
   return ALL_DESTINATIONS.map((d) => ({ slug: d.slug }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const dest = ALL_DESTINATIONS.find((d) => d.slug === params.slug);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const dest = ALL_DESTINATIONS.find((d) => d.slug === slug);
   if (!dest) return { title: "Destination Not Found" };
   return {
     title: dest.name,
@@ -57,11 +60,12 @@ const DESTINATION_DETAILS: Record<string, { description: string; highlights: str
   },
 };
 
-export default function DestinationDetailPage({ params }: { params: { slug: string } }) {
-  const dest = ALL_DESTINATIONS.find((d) => d.slug === params.slug);
+export default async function DestinationDetailPage({ params }: Props) {
+  const { slug } = await params;
+  const dest = ALL_DESTINATIONS.find((d) => d.slug === slug);
   if (!dest) notFound();
 
-  const details = DESTINATION_DETAILS[params.slug] || {
+  const details = DESTINATION_DETAILS[slug] || {
     description: `${dest.name} is a stunning destination. Explore our curated packages for an unforgettable experience.`,
     highlights: ["Iconic landmarks", "Local cuisine", "Cultural experiences", "Nature & wildlife", "Adventure activities", "Photography spots"],
     best_time: "October to April",
@@ -86,8 +90,7 @@ export default function DestinationDetailPage({ params }: { params: { slug: stri
             </div>
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-2">{dest.name}</h1>
             <div className="flex items-center gap-2 text-gold-400 text-lg font-medium">
-              <MapPin className="h-5 w-5" />
-              {dest.tagline}
+              <MapPin className="h-5 w-5" />{dest.tagline}
             </div>
           </div>
         </div>
