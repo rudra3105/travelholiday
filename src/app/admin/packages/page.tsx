@@ -6,10 +6,40 @@ import { Plus, Edit, Trash2, Eye, Search, ChevronDown, ChevronUp, X, Image as Im
 import { AdminModal } from "@/components/admin/modal";
 import { Field, AdminInput, AdminTextarea, AdminSelect, AdminTagInput, FormRow, SaveButton, CancelButton } from "@/components/admin/form-fields";
 import { AdminToasts, useAdminToast } from "@/components/admin/toast";
-import { getAllPackages, savePackage, deletePackage as deleteFromStore, type PackageFull } from "@/lib/package-store";
+import { getPackages } from "@/lib/db";
+import { savePackageAction, deletePackageAction } from "@/actions/admin";
 import { formatCurrency, getDurationLabel } from "@/lib/utils";
 
 type Tab = "basic" | "itinerary" | "inclusions" | "gallery";
+
+export interface ItineraryDay {
+  day: number;
+  title: string;
+  description: string;
+}
+
+export interface PackageFull {
+  id: string;
+  title: string;
+  slug: string;
+  destination: string;
+  duration_days: number;
+  price_per_person: number;
+  original_price: number;
+  cover_image: string;
+  short_description: string;
+  description: string;
+  type: string;
+  rating: number;
+  reviews_count: number;
+  best_seller: boolean;
+  featured: boolean;
+  inclusions: string[];
+  exclusions: string[];
+  highlights: string[];
+  gallery_images: string[];
+  itinerary: ItineraryDay[];
+}
 
 const EMPTY_PKG: Omit<PackageFull, "id"> = {
   title: "", slug: "", destination: "", duration_days: 5, price_per_person: 0,
@@ -25,6 +55,7 @@ const EMPTY_PKG: Omit<PackageFull, "id"> = {
 
 export default function AdminPackagesPage() {
   const [packages, setPackages] = useState<PackageFull[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("basic");
@@ -34,15 +65,27 @@ export default function AdminPackagesPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const { toasts, show } = useAdminToast();
 
-  // Load from store on mount
+  // Load from DB on mount
   useEffect(() => {
-    setPackages(getAllPackages());
+    loadPackages();
   }, []);
+
+  async function loadPackages() {
+    setLoading(true);
+    try {
+      const data = await getPackages();
+      setPackages(data as any);
+    } catch (error) {
+      show("Failed to load packages", "error");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const filtered = packages.filter(
     (p) =>
       p.title.toLowerCase().includes(search.toLowerCase()) ||
-      p.destination.toLowerCase().includes(search.toLowerCase())
+      p.destination?.toLowerCase().includes(search.toLowerCase())
   );
 
   function openAdd() {
@@ -65,26 +108,33 @@ export default function AdminPackagesPage() {
     if (!form.price_per_person) { show("Price is required", "error"); setActiveTab("basic"); return; }
 
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 500));
+    try {
+      const pkg = {
+        ...form,
+        id: editItem?.id,
+        slug: form.slug || form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+      };
 
-    const pkg: PackageFull = {
-      ...form,
-      id: editItem?.id || Date.now().toString(),
-      slug: form.slug || form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
-    };
-
-    savePackage(pkg);
-    setPackages(getAllPackages());
-    show(editItem ? "Package updated successfully!" : "Package added successfully!");
-    setSaving(false);
-    setIsOpen(false);
+      await savePackageAction(pkg);
+      await loadPackages();
+      show(editItem ? "Package updated successfully!" : "Package added successfully!");
+      setIsOpen(false);
+    } catch (error) {
+      show("Failed to save package", "error");
+    } finally {
+      setSaving(false);
+    }
   }
 
-  function handleDelete(id: string) {
-    deleteFromStore(id);
-    setPackages(getAllPackages());
-    show("Package deleted");
-    setDeleteId(null);
+  async function handleDelete(id: string) {
+    try {
+      await deletePackageAction(id);
+      await loadPackages();
+      show("Package deleted");
+      setDeleteId(null);
+    } catch (error) {
+      show("Failed to delete", "error");
+    }
   }
 
   const set = (k: keyof typeof form, v: unknown) =>
@@ -203,8 +253,8 @@ export default function AdminPackagesPage() {
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex gap-1">
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${pkg.itinerary.length > 0 ? "bg-emerald-400/20 text-emerald-400" : "bg-gray-400/20 text-gray-400"}`}>
-                        {pkg.itinerary.length}D itinerary
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${pkg.itinerary?.length > 0 ? "bg-emerald-400/20 text-emerald-400" : "bg-gray-400/20 text-gray-400"}`}>
+                        {pkg.itinerary?.length || 0}D itinerary
                       </span>
                     </div>
                   </td>

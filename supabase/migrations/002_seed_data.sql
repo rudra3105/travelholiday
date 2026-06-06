@@ -3,6 +3,9 @@
 -- Run AFTER 001_initial_schema.sql
 -- ============================================================
 
+-- Clean up existing data to avoid conflicts
+TRUNCATE destinations, packages, fixed_departures, testimonials, gallery, faq, settings CASCADE;
+
 -- ── DESTINATIONS ──────────────────────────────────────────────
 INSERT INTO destinations (name, slug, country, region, description, short_description, cover_image, highlights, best_time_to_visit, featured, sort_order) VALUES
 ('Kerala', 'kerala', 'India', 'domestic',
@@ -308,3 +311,20 @@ INSERT INTO faq (question, answer, category, sort_order) VALUES
 ('How safe are your tours for solo female travelers?',
  'Safety is our top priority. We have dedicated female tour leaders for women-only groups, vetted accommodations, 24/7 helpline support, and comprehensive safety briefings.',
  'Safety', 8);
+
+-- ── SETTINGS ──────────────────────────────────────────────────
+INSERT INTO settings (key, value, type, label, group_name) VALUES
+('site_name', 'Travel Holiday', 'text', 'Company Name', 'General'),
+('tagline', 'Crafting Extraordinary Journeys', 'text', 'Tagline', 'General'),
+('description', 'Travel Holiday — India''s most trusted travel partner from Jetpur, Gujarat.', 'text', 'Description', 'General'),
+('address', 'Jetpur, Gujarat, India', 'text', 'Address', 'General'),
+('phone', '+91 8108101218', 'text', 'Phone', 'General'),
+('whatsapp', '+91 81081 01218', 'text', 'WhatsApp', 'General'),
+('email', 'Info.travelholydays@gmail.com', 'text', 'Email', 'General'),
+('facebook', 'https://facebook.com/travelholiday', 'text', 'Facebook URL', 'Social'),
+('instagram', 'https://instagram.com/travelholiday', 'text', 'Instagram URL', 'Social'),
+('twitter', 'https://twitter.com/travelholiday', 'text', 'Twitter URL', 'Social'),
+('youtube', 'https://youtube.com/@travelholiday', 'text', 'YouTube URL', 'Social'),
+('meta_title', 'Travel Holiday - Crafting Extraordinary Journeys', 'text', 'Meta Title', 'SEO'),
+('meta_description', 'Explore handcrafted tour packages across India and world. Book your dream holiday with Travel Holiday, Jetpur, Gujarat.', 'text', 'Meta Description', 'SEO'),
+('og_image', '', 'image', 'OG Image URL', 'SEO');

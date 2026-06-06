@@ -28,7 +28,7 @@ export async function getFeaturedDestinations() {
 
 export async function getPackages(filters?: any) {
   if (!isAvailable()) return [];
-  let q = supabase.from("packages").select("*, destinations(name, slug)").order("sort_order");
+  let q = supabase.from("packages").select("*, destinations(name, slug), itineraries(*)").order("sort_order");
   if (filters?.type && filters.type !== "all") q = q.eq("type", filters.type);
   if (filters?.destination_id) q = q.eq("destination_id", filters.destination_id);
   if (filters?.featured !== undefined) q = q.eq("featured", filters.featured);
@@ -140,11 +140,30 @@ export async function deletePackage(id: string) {
   await admin.from("packages").delete().eq("id", id);
 }
 
+export async function upsertFixedDeparture(dep: Record<string, unknown>) {
+  const admin = createAdminClient();
+  if (!admin) return dep;
+  const { data } = await admin.from("fixed_departures").upsert(dep as any).select().single();
+  return data;
+}
+
+export async function deleteFixedDeparture(id: string) {
+  const admin = createAdminClient();
+  if (!admin) return;
+  await admin.from("fixed_departures").delete().eq("id", id);
+}
+
 export async function upsertTestimonial(t: Record<string, unknown>) {
   const admin = createAdminClient();
   if (!admin) return t;
   const { data } = await admin.from("testimonials").upsert(t as any).select().single();
   return data;
+}
+
+export async function deleteTestimonial(id: string) {
+  const admin = createAdminClient();
+  if (!admin) return;
+  await admin.from("testimonials").delete().eq("id", id);
 }
 
 export async function upsertGalleryImage(img: Record<string, unknown>) {
@@ -154,11 +173,23 @@ export async function upsertGalleryImage(img: Record<string, unknown>) {
   return data;
 }
 
+export async function deleteGalleryImage(id: string) {
+  const admin = createAdminClient();
+  if (!admin) return;
+  await admin.from("gallery").delete().eq("id", id);
+}
+
 export async function upsertFAQ(faq: Record<string, unknown>) {
   const admin = createAdminClient();
   if (!admin) return faq;
   const { data } = await admin.from("faq").upsert(faq as any).select().single();
   return data;
+}
+
+export async function deleteFAQ(id: string) {
+  const admin = createAdminClient();
+  if (!admin) return;
+  await admin.from("faq").delete().eq("id", id);
 }
 
 export async function updateSetting(key: string, value: string) {

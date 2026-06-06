@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Save, CheckCircle } from "lucide-react";
 import { AdminToasts, useAdminToast } from "@/components/admin/toast";
 import { Field, AdminInput, AdminTextarea, FormRow } from "@/components/admin/form-fields";
+import { getSiteSettings } from "@/lib/db";
+import { updateSettingAction } from "@/actions/admin";
 
 export default function AdminSettingsPage() {
   const { toasts, show } = useAdminToast();
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
 
   const [general, setGeneral] = useState({
@@ -32,16 +35,34 @@ export default function AdminSettingsPage() {
     og_image: "",
   });
 
-  const [admin, setAdmin] = useState({
-    admin_username: "travelholiday",
-    admin_password: "TH@admin2024",
-  });
+  useEffect(() => {
+    async function load() {
+      try {
+        const settings = await getSiteSettings();
+        if (Object.keys(settings).length > 0) {
+          setGeneral((p) => ({ ...p, ...Object.fromEntries(Object.entries(settings).filter(([k]) => k in p)) }));
+          setSocial((p) => ({ ...p, ...Object.fromEntries(Object.entries(settings).filter(([k]) => k in p)) }));
+          setSeo((p) => ({ ...p, ...Object.fromEntries(Object.entries(settings).filter(([k]) => k in p)) }));
+        }
+      } catch (error) {
+        show("Failed to load settings", "error");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
-  async function save(section: string) {
+  async function save(section: string, data: Record<string, string>) {
     setSaving(section);
-    await new Promise((r) => setTimeout(r, 700));
-    setSaving(null);
-    show(`${section} settings saved!`);
+    try {
+      await Promise.all(Object.entries(data).map(([k, v]) => updateSettingAction(k, v)));
+      show(`${section} settings saved!`);
+    } catch (error) {
+      show(`Failed to save ${section} settings`, "error");
+    } finally {
+      setSaving(null);
+    }
   }
 
   return (
@@ -82,7 +103,7 @@ export default function AdminSettingsPage() {
             <AdminInput type="email" value={general.email} onChange={(e) => setGeneral((p) => ({ ...p, email: e.target.value }))} />
           </Field>
         </div>
-        <button onClick={() => save("General")} disabled={saving === "General"} className="mt-5 flex items-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-400 disabled:opacity-60 text-white rounded-xl text-sm font-semibold transition-colors">
+        <button onClick={() => save("General", general)} disabled={saving === "General"} className="mt-5 flex items-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-400 disabled:opacity-60 text-white rounded-xl text-sm font-semibold transition-colors">
           {saving === "General" ? <><span className="animate-spin inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full"></span> Saving...</> : <><Save className="h-4 w-4" /> Save General</>}
         </button>
       </div>
@@ -102,7 +123,7 @@ export default function AdminSettingsPage() {
             </Field>
           ))}
         </div>
-        <button onClick={() => save("Social")} disabled={saving === "Social"} className="mt-5 flex items-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-400 disabled:opacity-60 text-white rounded-xl text-sm font-semibold transition-colors">
+        <button onClick={() => save("Social", social)} disabled={saving === "Social"} className="mt-5 flex items-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-400 disabled:opacity-60 text-white rounded-xl text-sm font-semibold transition-colors">
           {saving === "Social" ? "Saving..." : <><Save className="h-4 w-4" /> Save Social</>}
         </button>
       </div>
@@ -121,7 +142,7 @@ export default function AdminSettingsPage() {
             <AdminInput value={seo.og_image} onChange={(e) => setSeo((p) => ({ ...p, og_image: e.target.value }))} placeholder="https://..." />
           </Field>
         </div>
-        <button onClick={() => save("SEO")} disabled={saving === "SEO"} className="mt-5 flex items-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-400 disabled:opacity-60 text-white rounded-xl text-sm font-semibold transition-colors">
+        <button onClick={() => save("SEO", seo)} disabled={saving === "SEO"} className="mt-5 flex items-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-400 disabled:opacity-60 text-white rounded-xl text-sm font-semibold transition-colors">
           {saving === "SEO" ? "Saving..." : <><Save className="h-4 w-4" /> Save SEO</>}
         </button>
       </div>

@@ -207,6 +207,14 @@ CREATE INDEX idx_destinations_slug ON destinations(slug);
 -- =====================
 -- ROW LEVEL SECURITY
 -- =====================
+ALTER TABLE destinations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE packages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE package_images ENABLE ROW LEVEL SECURITY;
+ALTER TABLE itineraries ENABLE ROW LEVEL SECURITY;
+ALTER TABLE fixed_departures ENABLE ROW LEVEL SECURITY;
+ALTER TABLE testimonials ENABLE ROW LEVEL SECURITY;
+ALTER TABLE gallery ENABLE ROW LEVEL SECURITY;
+ALTER TABLE faq ENABLE ROW LEVEL SECURITY;
 ALTER TABLE inquiries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
@@ -218,6 +226,9 @@ CREATE POLICY "Public read testimonials" ON testimonials FOR SELECT USING (true)
 CREATE POLICY "Public read gallery" ON gallery FOR SELECT USING (true);
 CREATE POLICY "Public read faq" ON faq FOR SELECT USING (true);
 CREATE POLICY "Public read fixed_departures" ON fixed_departures FOR SELECT USING (true);
+CREATE POLICY "Public read settings" ON settings FOR SELECT USING (true);
+CREATE POLICY "Public read itineraries" ON itineraries FOR SELECT USING (true);
+CREATE POLICY "Public read package_images" ON package_images FOR SELECT USING (true);
 
 -- Allow inquiry insertions from public
 CREATE POLICY "Public insert inquiries" ON inquiries FOR INSERT WITH CHECK (true);

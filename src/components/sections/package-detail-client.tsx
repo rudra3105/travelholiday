@@ -7,25 +7,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { InquiryForm } from "@/components/sections/inquiry-form";
 import { ContactCTASection } from "@/components/sections/contact-cta-section";
-import { getPackageBySlug, type PackageFull } from "@/lib/package-store";
 import { formatCurrency, getDurationLabel } from "@/lib/utils";
 import { SITE_CONFIG } from "@/lib/constants";
 
 interface Props {
   slug: string;
-  defaultPkg: PackageFull;
+  defaultPkg: any;
 }
 
 export function PackageDetailClient({ slug, defaultPkg }: Props) {
-  // Start with server-side default, then override with any admin edits from localStorage
-  const [pkg, setPkg] = useState<PackageFull>(defaultPkg);
+  // Use the package data passed from the server (DB)
+  const [pkg] = useState<any>(defaultPkg);
   const [activeTab, setActiveTab] = useState<"overview" | "itinerary" | "inclusions" | "gallery">("overview");
-
-  useEffect(() => {
-    // Load latest data from localStorage (admin may have edited it)
-    const stored = getPackageBySlug(slug);
-    if (stored) setPkg(stored);
-  }, [slug]);
 
   const discount =
     pkg.original_price && pkg.original_price > pkg.price_per_person
@@ -173,7 +166,7 @@ export function PackageDetailClient({ slug, defaultPkg }: Props) {
                       </button>
                     </div>
                     <div className="space-y-3">
-                      {pkg.itinerary.slice(0, 3).map((day) => (
+                      {pkg.itinerary?.slice(0, 3).map((day) => (
                         <div key={day.day} className="flex gap-4 p-4 bg-gray-50 rounded-xl">
                           <div className="w-9 h-9 rounded-full bg-brand-500 text-white flex items-center justify-center font-bold text-sm shrink-0">{day.day}</div>
                           <div>
@@ -183,7 +176,7 @@ export function PackageDetailClient({ slug, defaultPkg }: Props) {
                           </div>
                         </div>
                       ))}
-                      {pkg.itinerary.length > 3 && (
+                      {pkg.itinerary?.length > 3 && (
                         <button onClick={() => setActiveTab("itinerary")} className="w-full p-3 border-2 border-dashed border-brand-200 rounded-xl text-brand-500 text-sm font-medium hover:bg-brand-50 transition-colors">
                           + {pkg.itinerary.length - 3} more days — View full itinerary
                         </button>
@@ -207,7 +200,7 @@ export function PackageDetailClient({ slug, defaultPkg }: Props) {
                     <div className="absolute left-5 top-5 bottom-5 w-0.5 bg-gray-200" />
 
                     <div className="space-y-4">
-                      {pkg.itinerary.map((day) => (
+                      {pkg.itinerary?.map((day) => (
                         <details key={day.day} className="group relative" open={day.day === 1}>
                           <summary className="flex items-center gap-4 cursor-pointer list-none p-4 bg-white rounded-2xl border border-gray-100 hover:border-brand-200 hover:bg-brand-50/30 transition-all shadow-sm">
                             {/* Day circle */}

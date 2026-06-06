@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { AboutHero } from "@/components/sections/about-hero";
 import { WhyChooseUsSection } from "@/components/sections/why-choose-us-section";
-import { TestimonialsSection } from "@/components/sections/testimonials-section";
+import { TestimonialsSectionDB } from "@/components/sections/testimonials-section-db";
 import { ContactCTASection } from "@/components/sections/contact-cta-section";
 import { SITE_CONFIG } from "@/lib/constants";
 
@@ -16,7 +16,7 @@ export default function AboutPage() {
       <AboutHero />
       <AboutStory />
       <WhyChooseUsSection />
-      <TestimonialsSection />
+      <TestimonialsSectionDB />
       <ContactCTASection />
     </>
   );

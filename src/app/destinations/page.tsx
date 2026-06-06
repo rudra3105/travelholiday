@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SectionHeader } from "@/components/sections/section-header";
 import { DestinationCard } from "@/components/sections/destination-card";
 import { ContactCTASection } from "@/components/sections/contact-cta-section";
-import { DESTINATIONS_DOMESTIC, DESTINATIONS_INTERNATIONAL } from "@/lib/constants";
+import { getDestinations } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Destinations",
@@ -13,6 +13,9 @@ type Props = { searchParams: Promise<{ type?: string }> };
 
 export default async function DestinationsPage({ searchParams }: Props) {
   const { type } = await searchParams;
+
+  const domestic = await getDestinations("domestic");
+  const international = await getDestinations("international");
 
   return (
     <>
@@ -31,23 +34,45 @@ export default async function DestinationsPage({ searchParams }: Props) {
         </div>
       </section>
 
-      {(!type || type === "domestic") && (
+      {(!type || type === "domestic") && domestic.length > 0 && (
         <section className="py-20 bg-gray-50">
           <div className="container mx-auto px-4">
             <SectionHeader eyebrow="India" title="Domestic" titleHighlight="Destinations" subtitle="Explore the incredible diversity of India" centered={false} />
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {DESTINATIONS_DOMESTIC.map((dest, i) => (<DestinationCard key={dest.slug} {...dest} index={i} />))}
+              {domestic.map((dest: any, i: number) => (
+                <DestinationCard 
+                  key={dest.slug} 
+                  name={dest.name}
+                  slug={dest.slug}
+                  image={dest.cover_image}
+                  tagline={dest.short_description}
+                  packages={0}
+                  starting_from={0}
+                  index={i} 
+                />
+              ))}
             </div>
           </div>
         </section>
       )}
 
-      {(!type || type === "international") && (
+      {(!type || type === "international") && international.length > 0 && (
         <section className="py-20 bg-white">
           <div className="container mx-auto px-4">
             <SectionHeader eyebrow="World" title="International" titleHighlight="Destinations" subtitle="Iconic cities, hidden gems, and paradise islands" centered={false} />
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {DESTINATIONS_INTERNATIONAL.map((dest, i) => (<DestinationCard key={dest.slug} {...dest} index={i} />))}
+              {international.map((dest: any, i: number) => (
+                <DestinationCard 
+                  key={dest.slug} 
+                  name={dest.name}
+                  slug={dest.slug}
+                  image={dest.cover_image}
+                  tagline={dest.short_description}
+                  packages={0}
+                  starting_from={0}
+                  index={i} 
+                />
+              ))}
             </div>
           </div>
         </section>

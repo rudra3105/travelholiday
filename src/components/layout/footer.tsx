@@ -1,9 +1,18 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Phone, Mail, MapPin, ArrowRight, Heart } from "lucide-react";
-import { SITE_CONFIG, DESTINATIONS_DOMESTIC, DESTINATIONS_INTERNATIONAL } from "@/lib/constants";
+import { SITE_CONFIG } from "@/lib/constants";
 
-export function Footer() {
+interface FooterProps {
+  config: typeof SITE_CONFIG;
+  domestic: any[];
+  international: any[];
+}
+
+export function Footer({ config, domestic, international }: FooterProps) {
+  const displayDomestic = domestic.length > 0 ? domestic.slice(0, 6) : [];
+  const displayInternational = international.length > 0 ? international.slice(0, 6) : [];
+
   return (
     <footer className="bg-gray-950 text-white">
       {/* Newsletter */}
@@ -31,20 +40,20 @@ export function Footer() {
                 <Image src="/logo.png" alt="Travel Holiday Logo" fill className="object-contain" />
               </div>
               <div>
-                <div className="text-xl font-bold">{SITE_CONFIG.name}</div>
-                <div className="text-xs text-white/50 uppercase tracking-wider">{SITE_CONFIG.tagline}</div>
+                <div className="text-xl font-bold">{config.site_name || config.name}</div>
+                <div className="text-xs text-white/50 uppercase tracking-wider">{config.tagline}</div>
               </div>
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">India's most trusted travel partner. Crafting extraordinary journeys across 100+ destinations worldwide.</p>
             <div className="space-y-3">
-              <a href={`tel:+918108101218`} className="flex items-center gap-3 text-sm text-gray-400 hover:text-white transition-colors">
-                <Phone className="h-4 w-4 text-brand-400 shrink-0" />{SITE_CONFIG.phone}
+              <a href={`tel:${config.phone.replace(/\s+/g, '')}`} className="flex items-center gap-3 text-sm text-gray-400 hover:text-white transition-colors">
+                <Phone className="h-4 w-4 text-brand-400 shrink-0" />{config.phone}
               </a>
-              <a href={`mailto:${SITE_CONFIG.email}`} className="flex items-center gap-3 text-sm text-gray-400 hover:text-white transition-colors">
-                <Mail className="h-4 w-4 text-brand-400 shrink-0" />{SITE_CONFIG.email}
+              <a href={`mailto:${config.email}`} className="flex items-center gap-3 text-sm text-gray-400 hover:text-white transition-colors">
+                <Mail className="h-4 w-4 text-brand-400 shrink-0" />{config.email}
               </a>
               <div className="flex items-start gap-3 text-sm text-gray-400">
-                <MapPin className="h-4 w-4 text-brand-400 shrink-0 mt-0.5" />{SITE_CONFIG.address}
+                <MapPin className="h-4 w-4 text-brand-400 shrink-0 mt-0.5" />{config.address}
               </div>
             </div>
           </div>
@@ -53,13 +62,14 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-semibold uppercase tracking-wider text-white/70 mb-5">Domestic Destinations</h4>
             <ul className="space-y-2.5">
-              {DESTINATIONS_DOMESTIC.map((dest) => (
+              {displayDomestic.map((dest: any) => (
                 <li key={dest.slug}>
                   <Link href={`/destinations/${dest.slug}`} className="text-sm text-gray-400 hover:text-white flex items-center gap-2 transition-colors group">
                     <ArrowRight className="h-3 w-3 text-brand-400 group-hover:translate-x-1 transition-transform" />{dest.name}
                   </Link>
                 </li>
               ))}
+              {displayDomestic.length === 0 && <li className="text-xs text-gray-500">Coming soon</li>}
             </ul>
           </div>
 
@@ -67,13 +77,14 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-semibold uppercase tracking-wider text-white/70 mb-5">International Tours</h4>
             <ul className="space-y-2.5">
-              {DESTINATIONS_INTERNATIONAL.map((dest) => (
+              {displayInternational.map((dest: any) => (
                 <li key={dest.slug}>
                   <Link href={`/destinations/${dest.slug}`} className="text-sm text-gray-400 hover:text-white flex items-center gap-2 transition-colors group">
                     <ArrowRight className="h-3 w-3 text-brand-400 group-hover:translate-x-1 transition-transform" />{dest.name}
                   </Link>
                 </li>
               ))}
+              {displayInternational.length === 0 && <li className="text-xs text-gray-500">Coming soon</li>}
             </ul>
           </div>
 

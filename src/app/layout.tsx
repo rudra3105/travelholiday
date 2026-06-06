@@ -5,38 +5,52 @@ import { Footer } from "@/components/layout/footer";
 import { FloatingActions } from "@/components/layout/floating-actions";
 import { Toaster } from "@/components/ui/toaster";
 import { SITE_CONFIG } from "@/lib/constants";
+import { getSiteSettings, getDestinations } from "@/lib/db";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://travelholiday.online"),
-  title: {
-    default: `${SITE_CONFIG.name} - ${SITE_CONFIG.tagline}`,
-    template: `%s | ${SITE_CONFIG.name}`,
-  },
-  description: SITE_CONFIG.description,
-  keywords: ["travel agency india", "tour packages", "holiday packages", "gujarat travel", "domestic tours", "international tours"],
-  openGraph: {
-    type: "website",
-    locale: "en_IN",
-    url: SITE_CONFIG.url,
-    siteName: SITE_CONFIG.name,
-    title: `${SITE_CONFIG.name} - ${SITE_CONFIG.tagline}`,
-    description: SITE_CONFIG.description,
-  },
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const config = { ...SITE_CONFIG, ...settings };
+  
+  return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://travelholiday.online"),
+    title: {
+      default: `${config.site_name || config.name} - ${config.tagline}`,
+      template: `%s | ${config.site_name || config.name}`,
+    },
+    description: config.description || config.meta_description,
+    keywords: ["travel agency india", "tour packages", "holiday packages", "gujarat travel", "domestic tours", "international tours"],
+    openGraph: {
+      type: "website",
+      locale: "en_IN",
+      url: config.url,
+      siteName: config.site_name || config.name,
+      title: `${config.site_name || config.name} - ${config.tagline}`,
+      description: config.description || config.meta_description,
+    },
+    robots: { index: true, follow: true },
+  };
+}
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const [settings, domestic, international] = await Promise.all([
+    getSiteSettings(),
+    getDestinations("domestic"),
+    getDestinations("international"),
+  ]);
+  
+  const config = { ...SITE_CONFIG, ...settings };
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased font-sans bg-white text-gray-900">
         <Navbar />
         <main>{children}</main>
-        <Footer />
+        <Footer config={config} domestic={domestic} international={international} />
         <FloatingActions />
         <Toaster />
         {/* WhatsApp floating button */}
         <a
-          href={`https://wa.me/${SITE_CONFIG.whatsapp}?text=Hi! I'm interested in a travel package.`}
+          href={`https://wa.me/${config.whatsapp.replace(/\s+/g, '')}?text=Hi! I'm interested in a travel package.`}
           target="_blank"
           rel="noopener noreferrer"
           className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#25D366] shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110"

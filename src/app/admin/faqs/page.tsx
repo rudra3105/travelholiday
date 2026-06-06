@@ -1,57 +1,101 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { AdminModal } from "@/components/admin/modal";
 import { Field, AdminInput, AdminTextarea, AdminSelect, FormRow, SaveButton, CancelButton } from "@/components/admin/form-fields";
 import { AdminToasts, useAdminToast } from "@/components/admin/toast";
+import { getFAQs } from "@/lib/db";
+import { saveFAQAction, deleteFAQAction } from "@/actions/admin";
 
 type FAQ = { id: string; question: string; answer: string; category: string; sort_order: number };
-
-const INITIAL: FAQ[] = [
-  { id: "1", question: "How do I book a tour package?", answer: "You can book by filling our inquiry form, calling us, or visiting our office. Our experts will contact you within 2-4 hours.", category: "Booking", sort_order: 1 },
-  { id: "2", question: "What documents are required for international tours?", answer: "Valid passport (6 months validity), visa, travel insurance, and original ID proof.", category: "Documents", sort_order: 2 },
-  { id: "3", question: "What is your cancellation policy?", answer: "30+ days: 90% refund. 15-30 days: 50%. 7-15 days: 25%. Less than 7 days: no refund.", category: "Policy", sort_order: 3 },
-  { id: "4", question: "Are prices per person or for a group?", answer: "All prices are per person on twin sharing basis. Single supplement charges apply for private room.", category: "Pricing", sort_order: 4 },
-  { id: "5", question: "Do you provide travel insurance?", answer: "We strongly recommend and can arrange comprehensive travel insurance at competitive rates.", category: "Services", sort_order: 5 },
-  { id: "6", question: "Can I customize my tour package?", answer: "Absolutely! We specialize in customized itineraries. Contact us to start planning.", category: "Customization", sort_order: 6 },
-];
 
 const CATEGORIES = ["Booking", "Documents", "Policy", "Pricing", "Services", "Customization", "Safety", "General"];
 
 export default function AdminFAQsPage() {
-  const [faqs, setFaqs] = useState<FAQ[]>(INITIAL);
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [editItem, setEditItem] = useState<FAQ | null>(null);
-  const [form, setForm] = useState({ question: "", answer: "", category: "General" });
+  const [form, setForm] = useState({ question: "", answer: "", category: "General", sort_order: 0 });
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const { toasts, show } = useAdminToast();
 
-  function openAdd() { setEditItem(null); setForm({ question: "", answer: "", category: "General" }); setIsOpen(true); }
-  function openEdit(f: FAQ) { setEditItem(f); setForm({ question: f.question, answer: f.answer, category: f.category }); setIsOpen(true); }
+  useEffect(() => {
+    loadFAQs();
+  }, []);
+
+  async function loadFAQs() {
+    setLoading(true);
+    try {
+      const data = await getFAQs();
+      setFaqs(data as FAQ[]);
+    } catch (error) {
+      show("Failed to load FAQs", "error");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function openAdd() { setEditItem(null); setForm({ question: "", answer: "", category: "General", sort_order: faqs.length + 1 }); setIsOpen(true); }
+  function openEdit(f: FAQ) { setEditItem(f); setForm({ question: f.question, answer: f.answer, category: f.category, sort_order: f.sort_order }); setIsOpen(true); }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!form.question || !form.answer) { show("Question and answer are required", "error"); return; }
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 400));
-    if (editItem) {
-      setFaqs((prev) => prev.map((f) => (f.id === editItem.id ? { ...editItem, ...form } : f)));
-      show("FAQ updated!");
-    } else {
-      setFaqs((prev) => [...prev, { ...form, id: Date.now().toString(), sort_order: prev.length + 1 }]);
-      show("FAQ added!");
+    try {
+      const payload = editItem ? { ...form, id: editItem.id } : form;
+      await saveFAQAction(payload);
+      show(editItem ? "FAQ updated!" : "FAQ added!");
+      await loadFAQs();
+      setIsOpen(false);
+    } catch (error) {
+      show("Failed to save FAQ", "error");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
-    setIsOpen(false);
   }
 
-  const set = (k: string, v: string) => setForm((prev) => ({ ...prev, [k]: v }));
+  async function handleDelete() {
+    if (!deleteId) return;
+    try {
+      await deleteFAQAction(deleteId);
+      show("Deleted successfully");
+      await loadFAQs();
+      setDeleteId(null);
+    } catch (error) {
+      show("Failed to delete", "error");
+    }
+  }
 
-  const moveUp = (i: number) => { if (i === 0) return; const arr = [...faqs]; [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]]; setFaqs(arr); };
-  const moveDown = (i: number) => { if (i === faqs.length - 1) return; const arr = [...faqs]; [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]]; setFaqs(arr); };
+  const set = (k: string, v: string | number) => setForm((prev) => ({ ...prev, [k]: v }));
+
+  const moveUp = async (i: number) => { 
+    if (i === 0) return; 
+    const arr = [...faqs]; 
+    const item1 = arr[i-1];
+    const item2 = arr[i];
+    const tempOrder = item1.sort_order;
+    item1.sort_order = item2.sort_order;
+    item2.sort_order = tempOrder;
+    await Promise.all([saveFAQAction(item1), saveFAQAction(item2)]);
+    await loadFAQs();
+  };
+  
+  const moveDown = async (i: number) => { 
+    if (i === faqs.length - 1) return; 
+    const arr = [...faqs]; 
+    const item1 = arr[i];
+    const item2 = arr[i+1];
+    const tempOrder = item1.sort_order;
+    item1.sort_order = item2.sort_order;
+    item2.sort_order = tempOrder;
+    await Promise.all([saveFAQAction(item1), saveFAQAction(item2)]);
+    await loadFAQs();
+  };
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -108,7 +152,7 @@ export default function AdminFAQsPage() {
       <AdminModal isOpen={!!deleteId} onClose={() => setDeleteId(null)} title="Delete FAQ" size="sm">
         <p className="text-gray-300 mb-6">Delete this FAQ? This cannot be undone.</p>
         <div className="flex gap-3">
-          <button onClick={() => { setFaqs((p) => p.filter((f) => f.id !== deleteId)); show("Deleted"); setDeleteId(null); }} className="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-semibold">Yes, Delete</button>
+          <button onClick={handleDelete} className="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-semibold">Yes, Delete</button>
           <CancelButton onClick={() => setDeleteId(null)} />
         </div>
       </AdminModal>

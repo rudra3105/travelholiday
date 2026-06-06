@@ -1,15 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Edit, Trash2, Calendar } from "lucide-react";
 import { AdminModal } from "@/components/admin/modal";
 import { Field, AdminInput, AdminSelect, FormRow, SaveButton, CancelButton } from "@/components/admin/form-fields";
 import { AdminToasts, useAdminToast } from "@/components/admin/toast";
-import { FIXED_DEPARTURES_DATA } from "@/lib/data";
 import { formatCurrency, formatDate, getDurationLabel } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { getFixedDepartures } from "@/lib/db";
+import { saveFixedDepartureAction, deleteFixedDepartureAction } from "@/actions/admin";
 
-type Departure = typeof FIXED_DEPARTURES_DATA[number] & { id: string };
+type Departure = {
+  id: string;
+  package_id: string;
+  package_title?: string;
+  destination?: string;
+  cover_image?: string;
+  departure_date: string;
+  return_date: string;
+  price_per_person: number;
+  available_seats: number;
+  total_seats: number;
+  status: "available" | "limited" | "sold_out" | "cancelled";
+  slug?: string;
+  duration_days?: number;
+};
 
 const STATUS_COLORS = {
   available: "bg-emerald-100 text-emerald-700",
@@ -19,44 +34,111 @@ const STATUS_COLORS = {
 };
 
 export default function AdminDeparturesPage() {
-  const [items, setItems] = useState<Departure[]>(FIXED_DEPARTURES_DATA as Departure[]);
+  const [items, setItems] = useState<Departure[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [editItem, setEditItem] = useState<Departure | null>(null);
   const [form, setForm] = useState({
-    package_title: "", destination: "", cover_image: "",
-    departure_date: "", return_date: "", duration_days: 7,
-    price_per_person: 0, available_seats: 16, total_seats: 20,
-    status: "available", slug: "",
+    package_id: "",
+    package_title: "",
+    destination: "",
+    cover_image: "",
+    departure_date: "",
+    return_date: "",
+    duration_days: 7,
+    price_per_person: 0,
+    available_seats: 16,
+    total_seats: 20,
+    status: "available" as const,
+    slug: "",
   });
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const { toasts, show } = useAdminToast();
 
+  useEffect(() => {
+    loadItems();
+  }, []);
+
+  async function loadItems() {
+    setLoading(true);
+    try {
+      const data = await getFixedDepartures();
+      setItems(data as any);
+    } catch (error) {
+      show("Failed to load departures", "error");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   function openAdd() {
     setEditItem(null);
-    setForm({ package_title: "", destination: "", cover_image: "", departure_date: "", return_date: "", duration_days: 7, price_per_person: 0, available_seats: 16, total_seats: 20, status: "available", slug: "" });
+    setForm({
+      package_id: "",
+      package_title: "",
+      destination: "",
+      cover_image: "",
+      departure_date: "",
+      return_date: "",
+      duration_days: 7,
+      price_per_person: 0,
+      available_seats: 16,
+      total_seats: 20,
+      status: "available",
+      slug: "",
+    });
     setIsOpen(true);
   }
   function openEdit(d: Departure) {
     setEditItem(d);
-    setForm({ package_title: d.package_title, destination: d.destination, cover_image: d.cover_image, departure_date: d.departure_date, return_date: d.return_date, duration_days: d.duration_days, price_per_person: d.price_per_person, available_seats: d.available_seats, total_seats: d.total_seats, status: d.status, slug: d.slug });
+    setForm({
+      package_id: d.package_id,
+      package_title: d.package_title || "",
+      destination: d.destination || "",
+      cover_image: d.cover_image || "",
+      departure_date: d.departure_date,
+      return_date: d.return_date,
+      duration_days: d.duration_days || 7,
+      price_per_person: d.price_per_person,
+      available_seats: d.available_seats,
+      total_seats: d.total_seats,
+      status: d.status,
+      slug: d.slug || "",
+    });
     setIsOpen(true);
   }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.package_title || !form.departure_date) { show("Package name and departure date are required", "error"); return; }
-    setSaving(true);
-    await new Promise((r) => setTimeout(r, 500));
-    if (editItem) {
-      setItems((prev) => prev.map((d) => (d.id === editItem.id ? { ...editItem, ...form } : d)));
-      show("Departure updated!");
-    } else {
-      setItems((prev) => [{ ...form, id: Date.now().toString() }, ...prev]);
-      show("Departure added!");
+    if (!form.package_title || !form.departure_date) {
+      show("Package name and departure date are required", "error");
+      return;
     }
-    setSaving(false);
-    setIsOpen(false);
+    setSaving(true);
+    try {
+      const payload = editItem ? { ...form, id: editItem.id } : form;
+      await saveFixedDepartureAction(payload);
+      show(editItem ? "Departure updated!" : "Departure added!");
+      await loadItems();
+      setIsOpen(false);
+    } catch (error) {
+      show("Failed to save", "error");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!deleteId) return;
+    try {
+      await deleteFixedDepartureAction(deleteId);
+      show("Deleted successfully");
+      await loadItems();
+      setDeleteId(null);
+    } catch (error) {
+      show("Failed to delete", "error");
+    }
   }
 
   const set = (k: string, v: unknown) => setForm((prev) => ({ ...prev, [k]: v }));
@@ -169,7 +251,7 @@ export default function AdminDeparturesPage() {
       <AdminModal isOpen={!!deleteId} onClose={() => setDeleteId(null)} title="Delete Departure" size="sm">
         <p className="text-gray-300 mb-6">Delete this departure?</p>
         <div className="flex gap-3">
-          <button onClick={() => { setItems((p) => p.filter((d) => d.id !== deleteId)); show("Deleted"); setDeleteId(null); }} className="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-semibold">Yes, Delete</button>
+          <button onClick={handleDelete} className="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-semibold">Yes, Delete</button>
           <CancelButton onClick={() => setDeleteId(null)} />
         </div>
       </AdminModal>

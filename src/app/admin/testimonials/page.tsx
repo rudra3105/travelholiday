@@ -1,40 +1,84 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Edit, Trash2, Star } from "lucide-react";
 import { AdminModal } from "@/components/admin/modal";
 import { Field, AdminInput, AdminTextarea, FormRow, SaveButton, CancelButton } from "@/components/admin/form-fields";
 import { AdminToasts, useAdminToast } from "@/components/admin/toast";
-import { TESTIMONIALS_DATA } from "@/lib/data";
+import { getTestimonials } from "@/lib/db";
+import { saveTestimonialAction, deleteTestimonialAction } from "@/actions/admin";
 
-type Testimonial = typeof TESTIMONIALS_DATA[number] & { id: string };
+type Testimonial = {
+  id: string;
+  name: string;
+  location: string | null;
+  avatar: string | null;
+  rating: number;
+  review: string;
+  destination: string | null;
+  travel_date: string | null;
+  verified: boolean;
+  featured: boolean;
+  sort_order: number;
+  created_at: string;
+};
 
 export default function AdminTestimonialsPage() {
-  const [items, setItems] = useState<Testimonial[]>(TESTIMONIALS_DATA as Testimonial[]);
+  const [items, setItems] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [editItem, setEditItem] = useState<Testimonial | null>(null);
-  const [form, setForm] = useState({ name: "", location: "", avatar: "", rating: 5, review: "", destination: "", travel_date: "" });
+  const [form, setForm] = useState({ name: "", location: "", avatar: "", rating: 5, review: "", destination: "", travel_date: "", featured: false, verified: true, sort_order: 0 });
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const { toasts, show } = useAdminToast();
 
-  function openAdd() { setEditItem(null); setForm({ name: "", location: "", avatar: "", rating: 5, review: "", destination: "", travel_date: "" }); setIsOpen(true); }
-  function openEdit(t: Testimonial) { setEditItem(t); setForm({ name: t.name, location: t.location, avatar: t.avatar || "", rating: t.rating, review: t.review, destination: t.destination, travel_date: t.travel_date }); setIsOpen(true); }
+  useEffect(() => {
+    loadItems();
+  }, []);
+
+  async function loadItems() {
+    setLoading(true);
+    try {
+      const data = await getTestimonials();
+      setItems(data as Testimonial[]);
+    } catch (error) {
+      show("Failed to load testimonials", "error");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function openAdd() { setEditItem(null); setForm({ name: "", location: "", avatar: "", rating: 5, review: "", destination: "", travel_date: "", featured: false, verified: true, sort_order: items.length }); setIsOpen(true); }
+  function openEdit(t: Testimonial) { setEditItem(t); setForm({ name: t.name, location: t.location || "", avatar: t.avatar || "", rating: t.rating, review: t.review, destination: t.destination || "", travel_date: t.travel_date || "", featured: t.featured || false, verified: t.verified || true, sort_order: t.sort_order || 0 }); setIsOpen(true); }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!form.name || !form.review) { show("Name and review are required", "error"); return; }
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 500));
-    if (editItem) {
-      setItems((prev) => prev.map((t) => (t.id === editItem.id ? { ...editItem, ...form } : t)));
-      show("Testimonial updated!");
-    } else {
-      setItems((prev) => [{ ...form, id: Date.now().toString(), verified: true, featured: false, sort_order: 0, created_at: new Date().toISOString() }, ...prev]);
-      show("Testimonial added!");
+    try {
+      const payload = editItem ? { ...form, id: editItem.id } : form;
+      await saveTestimonialAction(payload);
+      show(editItem ? "Testimonial updated!" : "Testimonial added!");
+      await loadItems();
+      setIsOpen(false);
+    } catch (error) {
+      show("Failed to save testimonial", "error");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
-    setIsOpen(false);
+  }
+
+  async function handleDelete() {
+    if (!deleteId) return;
+    try {
+      await deleteTestimonialAction(deleteId);
+      show("Deleted successfully");
+      await loadItems();
+      setDeleteId(null);
+    } catch (error) {
+      show("Failed to delete", "error");
+    }
   }
 
   const set = (k: string, v: unknown) => setForm((prev) => ({ ...prev, [k]: v }));
@@ -114,7 +158,7 @@ export default function AdminTestimonialsPage() {
       <AdminModal isOpen={!!deleteId} onClose={() => setDeleteId(null)} title="Delete Review" size="sm">
         <p className="text-gray-300 mb-6">Delete this review? This cannot be undone.</p>
         <div className="flex gap-3">
-          <button onClick={() => { setItems((p) => p.filter((t) => t.id !== deleteId)); show("Deleted"); setDeleteId(null); }} className="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-semibold">Yes, Delete</button>
+          <button onClick={handleDelete} className="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-semibold">Yes, Delete</button>
           <CancelButton onClick={() => setDeleteId(null)} />
         </div>
       </AdminModal>

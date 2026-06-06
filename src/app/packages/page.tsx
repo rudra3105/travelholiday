@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PackageCard } from "@/components/sections/package-card";
 import { ContactCTASection } from "@/components/sections/contact-cta-section";
-import { FEATURED_PACKAGES } from "@/lib/data";
+import { getPackages } from "@/lib/db";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -23,11 +23,25 @@ type Props = { searchParams: Promise<{ type?: string; destination?: string }> };
 export default async function PackagesPage({ searchParams }: Props) {
   const { type = "all", destination } = await searchParams;
 
-  const filtered = FEATURED_PACKAGES.filter((p) => {
-    const matchType = type === "all" || p.type === type;
-    const matchDest = !destination || p.destination.toLowerCase().includes(destination.toLowerCase());
-    return matchType && matchDest;
-  });
+  const dbPackages = await getPackages({ type, destination_id: destination });
+  
+  // Map DB packages to match the UI structure
+  const packages = dbPackages.map((p: any) => ({
+    id: p.id,
+    title: p.title,
+    slug: p.slug,
+    destination: p.destinations?.name || p.destination || "India",
+    duration_days: p.duration_days,
+    price_per_person: p.price_per_person,
+    original_price: p.original_price,
+    cover_image: p.cover_image,
+    short_description: p.short_description || "",
+    rating: p.rating,
+    reviews_count: p.reviews_count,
+    best_seller: p.best_seller,
+    featured: p.featured,
+    type: p.type,
+  }));
 
   return (
     <>
@@ -71,13 +85,13 @@ export default async function PackagesPage({ searchParams }: Props) {
             </div>
           )}
 
-          {filtered.length === 0 ? (
+          {packages.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-gray-400 text-lg">No packages found. <a href="/packages" className="text-brand-600 hover:underline">View all packages</a></p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map((pkg, i) => (
+              {packages.map((pkg: any, i: number) => (
                 <PackageCard key={pkg.id} {...pkg} index={i} />
               ))}
             </div>

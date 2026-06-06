@@ -3,13 +3,17 @@ import { Phone, Mail, MapPin, Clock, MessageSquare } from "lucide-react";
 import { ContactForm } from "@/components/sections/contact-form";
 import { PaymentButton } from "@/components/sections/payment-button";
 import { SITE_CONFIG } from "@/lib/constants";
+import { getSiteSettings } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Contact Us",
   description: "Get in touch with Travel Holiday. Free travel consultation, custom quotes, and 24/7 support.",
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const settings = await getSiteSettings();
+  const config = { ...SITE_CONFIG, ...settings };
+
   return (
     <>
       <section className="relative py-24 bg-gradient-to-br from-brand-900 to-brand-700">
@@ -34,19 +38,19 @@ export default function ContactPage() {
                   {
                     icon: Phone,
                     title: "Call Us",
-                    lines: [SITE_CONFIG.phone, "Mon–Sat 9AM–8PM"],
-                    href: `tel:${SITE_CONFIG.phone}`,
+                    lines: [config.phone, "Mon–Sat 9AM–8PM"],
+                    href: `tel:${config.phone}`,
                   },
                   {
                     icon: Mail,
                     title: "Email Us",
-                    lines: [SITE_CONFIG.email, "We reply within 24 hours"],
-                    href: `mailto:${SITE_CONFIG.email}`,
+                    lines: [config.email, "We reply within 24 hours"],
+                    href: `mailto:${config.email}`,
                   },
                   {
                     icon: MapPin,
                     title: "Visit Us",
-                    lines: [SITE_CONFIG.address],
+                    lines: [config.address],
                     href: undefined,
                   },
                   {
@@ -76,7 +80,7 @@ export default function ContactPage() {
 
               {/* WhatsApp CTA */}
               <a
-                href={`https://wa.me/${SITE_CONFIG.whatsapp}?text=Hi! I need help planning a trip.`}
+                href={`https://wa.me/${config.whatsapp.replace(/\s+/g, '')}?text=Hi! I need help planning a trip.`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-4 bg-[#25D366] text-white rounded-2xl hover:bg-[#20b858] transition-colors"

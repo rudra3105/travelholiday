@@ -1,47 +1,76 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Plus, Trash2, Edit, Upload, X } from "lucide-react";
 import { AdminModal } from "@/components/admin/modal";
 import { Field, AdminInput, AdminSelect, FormRow, SaveButton, CancelButton } from "@/components/admin/form-fields";
 import { AdminToasts, useAdminToast } from "@/components/admin/toast";
-import { GALLERY_DATA } from "@/lib/data";
+import { getGalleryImages } from "@/lib/db";
+import { saveGalleryImageAction, deleteGalleryImageAction } from "@/actions/admin";
 
-type GalleryItem = { id: string; url: string; alt: string; destination: string; category: string };
-
-const INITIAL: GalleryItem[] = GALLERY_DATA.map((g, i) => ({ ...g, id: String(i), destination: g.destination || "", category: "general" }));
+type GalleryItem = { id: string; url: string; alt: string; destination: string; category: string; featured: boolean; sort_order: number };
 
 const CATEGORIES = ["landscape", "heritage", "beach", "adventure", "city", "culture", "wildlife", "general"];
 
 export default function AdminGalleryPage() {
-  const [items, setItems] = useState<GalleryItem[]>(INITIAL);
+  const [items, setItems] = useState<GalleryItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [editItem, setEditItem] = useState<GalleryItem | null>(null);
-  const [form, setForm] = useState({ url: "", alt: "", destination: "", category: "general" });
+  const [form, setForm] = useState({ url: "", alt: "", destination: "", category: "general", featured: false, sort_order: 0 });
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const { toasts, show } = useAdminToast();
 
-  function openAdd() { setEditItem(null); setForm({ url: "", alt: "", destination: "", category: "general" }); setIsOpen(true); }
-  function openEdit(g: GalleryItem) { setEditItem(g); setForm({ url: g.url, alt: g.alt, destination: g.destination, category: g.category }); setIsOpen(true); }
+  useEffect(() => {
+    loadItems();
+  }, []);
+
+  async function loadItems() {
+    setLoading(true);
+    try {
+      const data = await getGalleryImages();
+      setItems(data as GalleryItem[]);
+    } catch (error) {
+      show("Failed to load gallery", "error");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function openAdd() { setEditItem(null); setForm({ url: "", alt: "", destination: "", category: "general", featured: false, sort_order: items.length }); setIsOpen(true); }
+  function openEdit(g: GalleryItem) { setEditItem(g); setForm({ url: g.url, alt: g.alt, destination: g.destination || "", category: g.category, featured: g.featured || false, sort_order: g.sort_order || 0 }); setIsOpen(true); }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!form.url) { show("Image URL is required", "error"); return; }
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 400));
-    if (editItem) {
-      setItems((prev) => prev.map((g) => (g.id === editItem.id ? { ...editItem, ...form } : g)));
-      show("Image updated!");
-    } else {
-      setItems((prev) => [...prev, { ...form, id: Date.now().toString() }]);
-      show("Image added!");
+    try {
+      const payload = editItem ? { ...form, id: editItem.id } : form;
+      await saveGalleryImageAction(payload);
+      show(editItem ? "Image updated!" : "Image added!");
+      await loadItems();
+      setIsOpen(false);
+    } catch (error) {
+      show("Failed to save image", "error");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
-    setIsOpen(false);
   }
 
-  const set = (k: string, v: string) => setForm((prev) => ({ ...prev, [k]: v }));
+  async function handleDelete() {
+    if (!deleteId) return;
+    try {
+      await deleteGalleryImageAction(deleteId);
+      show("Deleted successfully");
+      await loadItems();
+      setDeleteId(null);
+    } catch (error) {
+      show("Failed to delete", "error");
+    }
+  }
+
+  const set = (k: string, v: string | boolean | number) => setForm((prev) => ({ ...prev, [k]: v }));
 
   return (
     <div className="space-y-6">
@@ -101,7 +130,7 @@ export default function AdminGalleryPage() {
       <AdminModal isOpen={!!deleteId} onClose={() => setDeleteId(null)} title="Delete Image" size="sm">
         <p className="text-gray-300 mb-6">Delete this image from gallery?</p>
         <div className="flex gap-3">
-          <button onClick={() => { setItems((p) => p.filter((g) => g.id !== deleteId)); show("Deleted"); setDeleteId(null); }} className="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-semibold">Yes, Delete</button>
+          <button onClick={handleDelete} className="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-semibold">Yes, Delete</button>
           <CancelButton onClick={() => setDeleteId(null)} />
         </div>
       </AdminModal>
