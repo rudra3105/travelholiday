@@ -142,7 +142,7 @@ export async function upsertDestination(dest: Record<string, unknown>) {
     "id", "name", "slug", "country", "region", "description",
     "short_description", "cover_image", "gallery_images", "highlights",
     "best_time_to_visit", "climate", "language", "currency", "timezone",
-    "visa_required", "featured", "sort_order", "starting_price", "updated_at"
+    "visa_required", "featured", "sort_order", "updated_at"
   ];
 
   const destData = Object.fromEntries(
@@ -237,25 +237,7 @@ export async function deletePackage(id: string) {
 export async function upsertFixedDeparture(dep: Record<string, unknown>) {
   const admin = createAdminClient();
   if (!admin) return dep;
-
-  // Only pass columns that exist in the fixed_departures table
-  const validColumns = [
-    "id", "package_id", "departure_date", "return_date",
-    "price_per_person", "available_seats", "total_seats", "status"
-  ];
-  const depData = Object.fromEntries(
-    Object.entries(dep).filter(([key]) => validColumns.includes(key))
-  );
-
-  if (!depData.package_id) {
-    throw new Error("package_id is required for fixed departures");
-  }
-
-  const { data, error } = await admin.from("fixed_departures").upsert(depData as any).select().single();
-  if (error) {
-    console.error("UPSERT FIXED DEPARTURE ERROR:", error);
-    throw error;
-  }
+  const { data } = await admin.from("fixed_departures").upsert(dep as any).select().single();
   return data;
 }
 

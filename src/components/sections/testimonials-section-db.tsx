@@ -1,8 +1,9 @@
 import { TestimonialsSection } from "./testimonials-section";
 import { getTestimonials } from "@/lib/db";
+import { TESTIMONIALS_DATA } from "@/lib/data";
 
 export async function TestimonialsSectionDB() {
-  let testimonials: any[] = [];
+  let testimonials = TESTIMONIALS_DATA;
 
   try {
     const dbData = await getTestimonials();
@@ -23,10 +24,8 @@ export async function TestimonialsSectionDB() {
       }));
     }
   } catch {
-    // DB not configured yet
+    // Use static fallback
   }
-
-  if (testimonials.length === 0) return null;
 
   return <TestimonialsSection testimonials={testimonials} />;
 }

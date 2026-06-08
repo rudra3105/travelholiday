@@ -1,8 +1,9 @@
 import { GallerySection } from "./gallery-section";
 import { getGalleryImages } from "@/lib/db";
+import { GALLERY_DATA } from "@/lib/data";
 
 export async function GallerySectionDB() {
-  let images: any[] = [];
+  let images = GALLERY_DATA;
 
   try {
     const dbImages = await getGalleryImages(undefined, 12);
@@ -16,10 +17,8 @@ export async function GallerySectionDB() {
       }));
     }
   } catch {
-    // DB not configured yet
+    // Use static fallback
   }
-
-  if (images.length === 0) return null;
 
   return <GallerySection images={images} />;
 }
