@@ -10,8 +10,9 @@ export async function FAQSectionDB() {
       faqs = dbFaqs.map((f: any) => ({ q: f.question, a: f.answer }));
     }
   } catch {
-    // Use static fallback (FAQSection has its own static data)
+    // DB not configured yet
   }
 
+  // FAQSection has built-in static FAQs as a last resort — only pass if we have DB data
   return <FAQSection faqs={faqs} />;
 }

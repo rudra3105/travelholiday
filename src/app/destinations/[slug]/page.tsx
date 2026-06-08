@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { MapPin, Calendar, Globe, Check, Package } from "lucide-react";
+import { MapPin, Calendar, Globe, Check, Package, Clock, Languages, Banknote, Shield } from "lucide-react";
 import { PackageCard } from "@/components/sections/package-card";
 import { InquiryForm } from "@/components/sections/inquiry-form";
 import { ContactCTASection } from "@/components/sections/contact-cta-section";
@@ -32,14 +32,32 @@ export default async function DestinationDetailPage({ params }: Props) {
 
   const packages = await getPackages({ destination_id: dest.id });
 
-  const highlights = [
-    "Iconic landmarks & sights",
-    "Handpicked accommodations",
-    "Expert local guides",
-    "Authentic local cuisine",
-    "Seamless transportation",
-    "Cultural experiences",
-  ];
+  // Use DB highlights if available, otherwise fallback defaults
+  const highlights: string[] =
+    dest.highlights && dest.highlights.length > 0
+      ? dest.highlights
+      : [
+          "Iconic landmarks & sights",
+          "Handpicked accommodations",
+          "Expert local guides",
+          "Authentic local cuisine",
+          "Seamless transportation",
+          "Cultural experiences",
+        ];
+
+  // Travel info items (only show if data exists)
+  const travelInfo = [
+    dest.best_time_to_visit && { icon: Calendar, label: "Best Time", value: dest.best_time_to_visit },
+    dest.climate && { icon: Globe, label: "Climate", value: dest.climate },
+    dest.language && { icon: Languages, label: "Language", value: dest.language },
+    dest.currency && { icon: Banknote, label: "Currency", value: dest.currency },
+    dest.timezone && { icon: Clock, label: "Timezone", value: dest.timezone },
+    dest.visa_required !== undefined && {
+      icon: Shield,
+      label: "Visa",
+      value: dest.visa_required ? "Visa Required" : "No Visa Required",
+    },
+  ].filter(Boolean) as { icon: any; label: string; value: string }[];
 
   return (
     <>
@@ -58,8 +76,15 @@ export default async function DestinationDetailPage({ params }: Props) {
               <span className="text-white">{dest.name}</span>
             </div>
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-2">{dest.name}</h1>
-            <div className="flex items-center gap-2 text-gold-400 text-lg font-medium">
-              <MapPin className="h-5 w-5" />{dest.short_description}
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex items-center gap-2 text-gold-400 text-lg font-medium">
+                <MapPin className="h-5 w-5" />{dest.short_description}
+              </div>
+              {(dest as any).starting_price > 0 && (
+                <div className="text-white text-lg font-semibold">
+                  From {formatCurrency((dest as any).starting_price)}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -69,6 +94,7 @@ export default async function DestinationDetailPage({ params }: Props) {
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-3 gap-12">
             <div className="lg:col-span-2">
+              {/* Description */}
               <div className="mb-12">
                 <h2 className="text-3xl font-bold text-gray-900 mb-6">About {dest.name}</h2>
                 <div className="prose prose-lg text-gray-600 max-w-none">
@@ -76,6 +102,27 @@ export default async function DestinationDetailPage({ params }: Props) {
                 </div>
               </div>
 
+              {/* Travel Info */}
+              {travelInfo.length > 0 && (
+                <div className="mb-12">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-6">Travel Information</h3>
+                  <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {travelInfo.map((info, i) => (
+                      <div key={i} className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
+                        <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center shrink-0">
+                          <info.icon className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{info.label}</p>
+                          <p className="text-gray-800 text-sm font-medium mt-0.5">{info.value}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Highlights */}
               <div className="mb-12">
                 <h3 className="text-2xl font-bold text-gray-900 mb-6">Why Visit {dest.name}?</h3>
                 <div className="grid sm:grid-cols-2 gap-4">
@@ -90,6 +137,24 @@ export default async function DestinationDetailPage({ params }: Props) {
                 </div>
               </div>
 
+              {/* Gallery */}
+              {dest.gallery_images && dest.gallery_images.length > 0 && (
+                <div className="mb-12">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-6">Gallery</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {dest.gallery_images.map((url: string, i: number) => (
+                      <img
+                        key={i}
+                        src={url}
+                        alt={`${dest.name} ${i + 1}`}
+                        className="w-full h-40 object-cover rounded-xl"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Packages */}
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-8">Available Packages in {dest.name}</h3>
                 <div className="grid sm:grid-cols-2 gap-6">

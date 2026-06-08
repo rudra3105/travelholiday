@@ -44,10 +44,15 @@ export async function deletePackageAction(id: string) {
 }
 
 export async function saveFixedDepartureAction(dep: any) {
-  const res = await upsertFixedDeparture(dep);
-  revalidatePath("/admin/departures");
-  revalidatePath("/fixed-departures");
-  return res;
+  try {
+    const res = await upsertFixedDeparture(dep);
+    revalidatePath("/admin/departures");
+    revalidatePath("/fixed-departures");
+    return res;
+  } catch (error: any) {
+    console.error("saveFixedDepartureAction error:", error);
+    throw new Error(error?.message || "Failed to save fixed departure");
+  }
 }
 
 export async function deleteFixedDepartureAction(id: string) {

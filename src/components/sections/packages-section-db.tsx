@@ -1,9 +1,8 @@
 import { PackagesSectionClient } from "./packages-section-client";
 import { getFeaturedPackages } from "@/lib/db";
-import { FEATURED_PACKAGES } from "@/lib/data";
 
 export async function PackagesSectionDB() {
-  let packages = FEATURED_PACKAGES; // static fallback
+  let packages: any[] = [];
 
   try {
     const dbPackages = await getFeaturedPackages(6);
@@ -16,7 +15,7 @@ export async function PackagesSectionDB() {
         duration_days: p.duration_days,
         price_per_person: p.price_per_person,
         original_price: p.original_price,
-        cover_image: p.cover_image || FEATURED_PACKAGES[0].cover_image,
+        cover_image: p.cover_image || "",
         short_description: p.short_description || "",
         rating: p.rating,
         reviews_count: p.reviews_count,
@@ -26,8 +25,10 @@ export async function PackagesSectionDB() {
       }));
     }
   } catch {
-    // Silently use static fallback if DB not yet configured
+    // DB not configured yet
   }
+
+  if (packages.length === 0) return null;
 
   return <PackagesSectionClient packages={packages} />;
 }
