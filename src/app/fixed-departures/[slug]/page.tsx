@@ -5,7 +5,7 @@ import { MapPin, Clock, Users, Calendar, CheckCircle, Phone } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { InquiryForm } from "@/components/sections/inquiry-form";
 import { ContactCTASection } from "@/components/sections/contact-cta-section";
-import { FIXED_DEPARTURES_DATA } from "@/lib/data";
+import { getFixedDepartures, getFixedDepartureBySlug } from "@/lib/db";
 import { formatCurrency, formatDate, getDurationLabel } from "@/lib/utils";
 import { SITE_CONFIG } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -13,12 +13,13 @@ import { cn } from "@/lib/utils";
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
-  return FIXED_DEPARTURES_DATA.map((d) => ({ slug: d.slug }));
+  const departures = await getFixedDepartures();
+  return departures.map((d: any) => ({ slug: d.packages?.slug || d.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const dep = FIXED_DEPARTURES_DATA.find((d) => d.slug === slug);
+  const dep = await getFixedDepartureBySlug(slug);
   if (!dep) return { title: "Departure Not Found" };
   return {
     title: dep.package_title,
@@ -44,7 +45,7 @@ const inclusions = [
 
 export default async function FixedDepartureDetailPage({ params }: Props) {
   const { slug } = await params;
-  const dep = FIXED_DEPARTURES_DATA.find((d) => d.slug === slug);
+  const dep = await getFixedDepartureBySlug(slug);
   if (!dep) notFound();
 
   const status = STATUS_CONFIG[dep.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.available;

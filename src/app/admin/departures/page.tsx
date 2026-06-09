@@ -7,7 +7,7 @@ import { Field, AdminInput, AdminSelect, FormRow, SaveButton, CancelButton } fro
 import { AdminToasts, useAdminToast } from "@/components/admin/toast";
 import { formatCurrency, formatDate, getDurationLabel } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-import { getFixedDepartures } from "@/lib/db";
+import { getFixedDepartures, getPackages } from "@/lib/db";
 import { saveFixedDepartureAction, deleteFixedDepartureAction } from "@/actions/admin";
 
 type Departure = {
@@ -35,53 +35,93 @@ const STATUS_COLORS = {
 
 export default function AdminDeparturesPage() {
   const [items, setItems] = useState<Departure[]>([]);
+  const [packages, setPackages] = useState<{id: string, title: string}[]>([]);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [editItem, setEditItem] = useState<Departure | null>(null);
   const [form, setForm] = useState<{
     package_id: string;
-    package_title: string;
-    destination: string;
-    cover_image: string;
     departure_date: string;
     return_date: string;
-    duration_days: number;
     price_per_person: number;
     available_seats: number;
     total_seats: number;
     status: "available" | "limited" | "sold_out" | "cancelled";
-    slug: string;
   }>({
     package_id: "",
-    package_title: "",
-    destination: "",
-    cover_image: "",
     departure_date: "",
     return_date: "",
-    duration_days: 7,
     price_per_person: 0,
     available_seats: 16,
     total_seats: 20,
     status: "available",
-    slug: "",
   });
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const { toasts, show } = useAdminToast();
 
   useEffect(() => {
-    loadItems();
+    loadInitialData();
   }, []);
 
-  async function loadItems() {
+  async function loadInitialData() {
     setLoading(true);
     try {
-      const data = await getFixedDepartures();
-      setItems(data as any);
+      const [depsData, pkgsData] = await Promise.all([
+        getFixedDepartures(undefined, true),
+        getPackages()
+      ]);
+      
+      const mappedDeps = (depsData as any[]).map(d => ({
+        id: d.id,
+        package_id: d.package_id,
+        package_title: d.packages?.title,
+        destination: d.packages?.destinations?.name,
+        cover_image: d.packages?.cover_image,
+        departure_date: d.departure_date,
+        return_date: d.return_date,
+        price_per_person: d.price_per_person,
+        available_seats: d.available_seats,
+        total_seats: d.total_seats,
+        status: d.status,
+        slug: d.packages?.slug,
+        duration_days: Math.ceil(
+          (new Date(d.return_date).getTime() - new Date(d.departure_date).getTime()) / (1000 * 60 * 60 * 24)
+        ) + 1,
+      }));
+
+      setItems(mappedDeps);
+      setPackages(pkgsData.map((p: any) => ({ id: p.id, title: p.title })));
     } catch (error) {
-      show("Failed to load departures", "error");
+      show("Failed to load data", "error");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadItems() {
+    try {
+      const data = await getFixedDepartures(undefined, true);
+      const mappedDeps = (data as any[]).map(d => ({
+        id: d.id,
+        package_id: d.package_id,
+        package_title: d.packages?.title,
+        destination: d.packages?.destinations?.name,
+        cover_image: d.packages?.cover_image,
+        departure_date: d.departure_date,
+        return_date: d.return_date,
+        price_per_person: d.price_per_person,
+        available_seats: d.available_seats,
+        total_seats: d.total_seats,
+        status: d.status,
+        slug: d.packages?.slug,
+        duration_days: Math.ceil(
+          (new Date(d.return_date).getTime() - new Date(d.departure_date).getTime()) / (1000 * 60 * 60 * 24)
+        ) + 1,
+      }));
+      setItems(mappedDeps);
+    } catch (error) {
+      show("Failed to refresh list", "error");
     }
   }
 
@@ -89,17 +129,12 @@ export default function AdminDeparturesPage() {
     setEditItem(null);
     setForm({
       package_id: "",
-      package_title: "",
-      destination: "",
-      cover_image: "",
       departure_date: "",
       return_date: "",
-      duration_days: 7,
       price_per_person: 0,
       available_seats: 16,
       total_seats: 20,
       status: "available",
-      slug: "",
     });
     setIsOpen(true);
   }
@@ -107,25 +142,20 @@ export default function AdminDeparturesPage() {
     setEditItem(d);
     setForm({
       package_id: d.package_id,
-      package_title: d.package_title || "",
-      destination: d.destination || "",
-      cover_image: d.cover_image || "",
       departure_date: d.departure_date,
       return_date: d.return_date,
-      duration_days: d.duration_days || 7,
       price_per_person: d.price_per_person,
       available_seats: d.available_seats,
       total_seats: d.total_seats,
       status: d.status,
-      slug: d.slug || "",
     });
     setIsOpen(true);
   }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.package_title || !form.departure_date) {
-      show("Package name and departure date are required", "error");
+    if (!form.package_id || !form.departure_date || !form.return_date) {
+      show("Package and dates are required", "error");
       return;
     }
     setSaving(true);
@@ -136,7 +166,8 @@ export default function AdminDeparturesPage() {
       await loadItems();
       setIsOpen(false);
     } catch (error) {
-      show("Failed to save", "error");
+      console.error(error);
+      show("Failed to save. Ensure package is selected.", "error");
     } finally {
       setSaving(false);
     }
@@ -211,13 +242,19 @@ export default function AdminDeparturesPage() {
 
       <AdminModal isOpen={isOpen} onClose={() => setIsOpen(false)} title={editItem ? "Edit Departure" : "Add Fixed Departure"} size="lg">
         <form onSubmit={handleSave} className="space-y-4">
-          <Field label="Package Title" required>
-            <AdminInput value={form.package_title} onChange={(e) => { set("package_title", e.target.value); set("slug", e.target.value.toLowerCase().replace(/\s+/g, "-")); }} placeholder="Kashmir Great Lakes Trek" required />
+          <Field label="Select Package" required>
+            <AdminSelect 
+              value={form.package_id} 
+              onChange={(e) => set("package_id", e.target.value)} 
+              options={[
+                { value: "", label: "Select a package..." },
+                ...packages.map(p => ({ value: p.id, label: p.title }))
+              ]} 
+              required 
+            />
           </Field>
+          
           <FormRow>
-            <Field label="Destination">
-              <AdminInput value={form.destination} onChange={(e) => set("destination", e.target.value)} placeholder="Kashmir" />
-            </Field>
             <Field label="Status">
               <AdminSelect value={form.status} onChange={(e) => set("status", e.target.value)} options={[
                 { value: "available", label: "Available" },
@@ -226,7 +263,11 @@ export default function AdminDeparturesPage() {
                 { value: "cancelled", label: "Cancelled" },
               ]} />
             </Field>
+            <Field label="Price Per Person (₹)" required>
+              <AdminInput type="number" value={form.price_per_person || ""} onChange={(e) => set("price_per_person", Number(e.target.value))} placeholder="28999" required />
+            </Field>
           </FormRow>
+
           <FormRow>
             <Field label="Departure Date" required>
               <AdminInput type="date" value={form.departure_date} onChange={(e) => set("departure_date", e.target.value)} required />
@@ -235,14 +276,7 @@ export default function AdminDeparturesPage() {
               <AdminInput type="date" value={form.return_date} onChange={(e) => set("return_date", e.target.value)} required />
             </Field>
           </FormRow>
-          <FormRow>
-            <Field label="Price Per Person (₹)" required>
-              <AdminInput type="number" value={form.price_per_person || ""} onChange={(e) => set("price_per_person", Number(e.target.value))} placeholder="28999" required />
-            </Field>
-            <Field label="Duration (Days)">
-              <AdminInput type="number" value={form.duration_days} onChange={(e) => set("duration_days", Number(e.target.value))} min={1} />
-            </Field>
-          </FormRow>
+
           <FormRow>
             <Field label="Available Seats">
               <AdminInput type="number" value={form.available_seats} onChange={(e) => set("available_seats", Number(e.target.value))} min={0} />
@@ -251,9 +285,7 @@ export default function AdminDeparturesPage() {
               <AdminInput type="number" value={form.total_seats} onChange={(e) => set("total_seats", Number(e.target.value))} min={1} />
             </Field>
           </FormRow>
-          <Field label="Cover Image URL">
-            <AdminInput value={form.cover_image} onChange={(e) => set("cover_image", e.target.value)} placeholder="https://images.unsplash.com/..." />
-          </Field>
+
           <div className="flex gap-3 pt-2 border-t border-white/10">
             <SaveButton isLoading={saving} label={editItem ? "Update" : "Add Departure"} />
             <CancelButton onClick={() => setIsOpen(false)} />

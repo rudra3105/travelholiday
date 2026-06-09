@@ -115,7 +115,7 @@ export default async function FixedDeparturesPage() {
                             <span className="text-2xl font-bold text-brand-600">{formatCurrency(dep.price_per_person)}</span>
                             <span className="text-gray-400 text-xs ml-1">per person</span>
                           </div>
-                          <Link href={`/packages/${pkg.slug}`}>
+                          <Link href={`/fixed-departures/${pkg.slug}`}>
                             <Button className="rounded-xl px-6">View Details</Button>
                           </Link>
                         </div>

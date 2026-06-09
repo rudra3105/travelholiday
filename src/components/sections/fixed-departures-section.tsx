@@ -6,7 +6,6 @@ import { Calendar, MapPin, Users, Clock, ArrowRight } from "lucide-react";
 import { SectionHeader } from "./section-header";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate, getDurationLabel } from "@/lib/utils";
-import { FIXED_DEPARTURES_DATA } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
 const STATUS_CONFIG = {
@@ -32,10 +31,11 @@ interface DepartureData {
 }
 
 interface Props {
-  departures?: DepartureData[];
+  departures: DepartureData[];
 }
 
-export function FixedDeparturesSection({ departures = FIXED_DEPARTURES_DATA }: Props) {
+export function FixedDeparturesSection({ departures }: Props) {
+  if (!departures || departures.length === 0) return null;
   return (
     <section className="py-20 lg:py-28 bg-gray-950 text-white relative overflow-hidden">
       <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-brand-900/20 to-transparent pointer-events-none" />

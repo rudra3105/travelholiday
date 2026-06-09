@@ -70,12 +70,50 @@ export async function getFeaturedPackages(limit = 6) {
   return data || [];
 }
 
-export async function getFixedDepartures(status?: string) {
+export async function getFixedDepartures(status?: string, includePast = false) {
   if (!isAvailable()) return [];
-  let q = supabase.from("fixed_departures").select("*, packages(title, slug, cover_image, destinations(name))").gte("departure_date", new Date().toISOString().split("T")[0]).order("departure_date");
+  let q = supabase.from("fixed_departures").select("*, packages(title, slug, cover_image, duration_days, destinations(name))");
+  
+  if (!includePast) {
+    q = q.gte("departure_date", new Date().toISOString().split("T")[0]);
+  }
+  
+  q = q.order("departure_date");
   if (status) q = q.eq("status", status);
   const { data } = await q;
   return data || [];
+}
+
+export async function getFixedDepartureBySlug(slug: string) {
+  if (!isAvailable()) return null;
+  
+  // Find the first upcoming departure for this package slug
+  const { data } = await supabase
+    .from("fixed_departures")
+    .select("*, packages!inner(title, slug, cover_image, duration_days, destinations(name))")
+    .eq("packages.slug", slug)
+    .gte("departure_date", new Date().toISOString().split("T")[0])
+    .order("departure_date")
+    .limit(1)
+    .single();
+    
+  if (data) {
+    return {
+      id: data.id,
+      package_title: data.packages.title,
+      destination: data.packages.destinations?.name || "India",
+      cover_image: data.packages.cover_image,
+      departure_date: data.departure_date,
+      return_date: data.return_date,
+      duration_days: data.packages.duration_days,
+      price_per_person: data.price_per_person,
+      available_seats: data.available_seats,
+      total_seats: data.total_seats,
+      status: data.status,
+      slug: data.packages.slug,
+    };
+  }
+  return null;
 }
 
 export async function getTestimonials(featured?: boolean) {
