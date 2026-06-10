@@ -175,7 +175,7 @@ export const NAV_LINKS = [
     submenu: [
       { label: "All Packages", href: "/packages" },
       { label: "Domestic Tours", href: "/packages?type=domestic" },
-      { label: "International Tours", href: "/packages?type=international" },
+      { label: "International Destinations", href: "/packages?type=international" },
       { label: "Honeymoon Tours", href: "/packages?type=honeymoon" },
       { label: "Adventure Tours", href: "/packages?type=adventure" },
       { label: "Pilgrimage Tours", href: "/packages?type=pilgrimage" },

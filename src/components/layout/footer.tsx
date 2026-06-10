@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Phone, Mail, MapPin, ArrowRight, Heart, MessageSquare } from "lucide-react";
+import { Phone, Mail, MapPin, ArrowRight, MessageSquare } from "lucide-react";
 import { SITE_CONFIG } from "@/lib/constants";
 
 interface FooterProps {
@@ -10,8 +10,8 @@ interface FooterProps {
 }
 
 export function Footer({ config, domestic, international }: FooterProps) {
-  const displayDomestic = domestic.length > 0 ? domestic.slice(0, 6) : [];
-  const displayInternational = international.length > 0 ? international.slice(0, 6) : [];
+  const displayDomestic = domestic?.length > 0 ? domestic.slice(0, 6) : [];
+  const displayInternational = international?.length > 0 ? international.slice(0, 6) : [];
 
   return (
     <footer className="bg-gray-950 text-white">
@@ -32,7 +32,12 @@ export function Footer({ config, domestic, international }: FooterProps) {
       </div>
 
       <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div 
+          className="grid grid-cols-1 md:grid-cols-2 gap-12"
+          style={{
+            gridTemplateColumns: `repeat(auto-fit, minmax(250px, 1fr))`
+          }}
+        >
           {/* Brand */}
           <div>
             <Link href="/" className="flex items-center gap-3 mb-6">
@@ -72,34 +77,36 @@ export function Footer({ config, domestic, international }: FooterProps) {
           </div>
 
           {/* Domestic */}
-          <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-white/70 mb-5">Domestic Destinations</h4>
-            <ul className="space-y-2.5">
-              {displayDomestic.map((dest: any) => (
-                <li key={dest.slug}>
-                  <Link href={`/destinations/${dest.slug}`} className="text-sm text-gray-400 hover:text-white flex items-center gap-2 transition-colors group">
-                    <ArrowRight className="h-3 w-3 text-brand-400 group-hover:translate-x-1 transition-transform" />{dest.name}
-                  </Link>
-                </li>
-              ))}
-              {displayDomestic.length === 0 && <li className="text-xs text-gray-500">Coming soon</li>}
-            </ul>
-          </div>
+          {displayDomestic.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold uppercase tracking-wider text-white/70 mb-5">Domestic Destinations</h4>
+              <ul className="space-y-2.5">
+                {displayDomestic.map((dest: any) => (
+                  <li key={dest.slug}>
+                    <Link href={`/destinations/${dest.slug}`} className="text-sm text-gray-400 hover:text-white flex items-center gap-2 transition-colors group">
+                      <ArrowRight className="h-3 w-3 text-brand-400 group-hover:translate-x-1 transition-transform" />{dest.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* International */}
-          <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-white/70 mb-5">International Tours</h4>
-            <ul className="space-y-2.5">
-              {displayInternational.map((dest: any) => (
-                <li key={dest.slug}>
-                  <Link href={`/destinations/${dest.slug}`} className="text-sm text-gray-400 hover:text-white flex items-center gap-2 transition-colors group">
-                    <ArrowRight className="h-3 w-3 text-brand-400 group-hover:translate-x-1 transition-transform" />{dest.name}
-                  </Link>
-                </li>
-              ))}
-              {displayInternational.length === 0 && <li className="text-xs text-gray-500">Coming soon</li>}
-            </ul>
-          </div>
+          {displayInternational.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold uppercase tracking-wider text-white/70 mb-5">International Destinations</h4>
+              <ul className="space-y-2.5">
+                {displayInternational.map((dest: any) => (
+                  <li key={dest.slug}>
+                    <Link href={`/destinations/${dest.slug}`} className="text-sm text-gray-400 hover:text-white flex items-center gap-2 transition-colors group">
+                      <ArrowRight className="h-3 w-3 text-brand-400 group-hover:translate-x-1 transition-transform" />{dest.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Quick Links */}
           <div>
